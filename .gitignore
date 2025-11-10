@@ -1,0 +1,27 @@
+# --- .gitignore ---
+# This file tells Git what to ignore.
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database file
+*.db
+*.sqlite
+*.sqlite3
+
+# OS files
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
+
+# Test/Sample files
+ml/audio/test_audio.wav
+ml/nlp/test_resume.pdf
