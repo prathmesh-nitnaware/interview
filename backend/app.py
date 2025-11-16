@@ -25,12 +25,13 @@ from backend.ollama_client import (
     generate_question_list,
     get_coding_problem,
     evaluate_code_solution,
-    analyze_resume_against_job
+    analyze_resume_against_job 
 )
 from ml.cv.eye_tracking import get_head_pose, is_looking_at_camera, is_blinking
 from ml.cv.posture_analysis import calculate_posture_score
 from ml.audio.emotion_detector import analyze_audio_features
-from ml.nlp.resume_parser import extract_text_from_pdf, parse_resume
+# This import is CRITICAL and must have both functions
+from ml.nlp.resume_parser import extract_text_from_pdf, parse_resume 
 
 app = FastAPI()
 
@@ -43,8 +44,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- In-Memory Session Storage (The "Brain's" Memory) ---
-interview_sessions: Dict[str, Dict[str, Any]] = {}
+# --- (No Session Storage, we are stateless) ---
 
 # --- Initialize ALL Models at Startup ---
 try:
@@ -141,7 +141,7 @@ class CodeEvaluationRequest(BaseModel):
 
 class CodingProblemRequest(BaseModel):
     skills: List[str]
-    difficulty: str
+    difficulty: str # "easy", "medium", or "hard"
 
 # --- API Endpoints ---
 
@@ -156,7 +156,7 @@ async def score_resume_endpoint(
     file: UploadFile = File(...)   # resume.pdf
 ):
     """
-    Takes a resume and a job description,
+    This endpoint takes a resume and a job description,
     and returns the "AI Hiring Manager" analysis.
     """
     tmp_path = ""
@@ -181,34 +181,32 @@ async def score_resume_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- FEATURE 2: AI MOCK INTERVIEW ---
-
-@app.post("/start_interview")
-async def start_interview_endpoint(
+@app.post("/generate_interview_plan")
+async def generate_interview_plan_endpoint(
     difficulty: str = Form(...),
     num_questions: int = Form(...),
     file: UploadFile = File(...)
 ):
     """
-    Takes PDF + settings, creates a session,
-    and returns the *first* question.
+    Takes a PDF resume and user prefs, and returns a
+    full list of questions and their audio.
     """
-    if not stt_model: 
-        raise HTTPException(status_code=500, detail="Server models are not ready.")
-
     tmp_path = ""
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             contents = await file.read()
             tmp.write(contents)
             tmp_path = tmp.name
-        resume_text = extract_text_from_pdf(tmp_path)
+        resume_text = extract_text_from_pdf(tmp_path) # Just get text
         os.remove(tmp_path)
         
         if not resume_text:
             raise HTTPException(status_code=400, detail="Could not read text from PDF.")
         
-        parsed_data = parse_resume(text=resume_text)
+        # We need the skills from the resume
+        parsed_data = parse_resume(text=resume_text) # Use our parser
         
+        # Generate List of Question Strings
         question_list = generate_question_list(
             parsed_data.get("skills", []),
             parsed_data.get("experience", []),
@@ -218,146 +216,110 @@ async def start_interview_endpoint(
         if not question_list:
             raise HTTPException(status_code=500, detail="Failed to generate questions")
 
-        # Generate audio for *only the first question* to save time
-        first_question_text = question_list[0]
-        first_question_audio_b64 = generate_audio_b64(first_question_text)
+        # Generate Audio for *each* question
+        interview_plan = []
+        for q_text in question_list:
+            q_audio_b64 = generate_audio_b64(q_text)
+            interview_plan.append({
+                "question_text": q_text,
+                "question_audio_b64": q_audio_b64
+            })
 
-        # Create and save the session
-        session_id = str(uuid.uuid4())
-        interview_sessions[session_id] = {
-            "resume_data": parsed_data,
-            "question_list": question_list,     # The *full* list
-            "turn_count": 0,                # Starts at 0
-            "conversation_history": []
-        }
-
-        # Return the session ID and the first question
+        # Return the full plan
         return {
-            "session_id": session_id,
-            "question_text": first_question_text,
-            "question_audio_b64": first_question_audio_b64,
-            "resume_data": parsed_data,
-            "total_questions": len(question_list)
+            "resume_data": parsed_data, # Send back the parsed skills
+            "interview_plan": interview_plan
         }
     
     except Exception as e:
         if 'tmp_path' in locals() and os.path.exists(tmp_path): 
             os.remove(tmp_path)
-        print(f"Error in /start_interview: {e}")
+        print(f"Error in /generate_interview_plan: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.post("/submit_turn")
-async def submit_turn_endpoint(
-    session_id: str = Form(...),
-    cv_scores_json: str = Form(...), 
-    audio_file: UploadFile = File(...)
+@app.post("/submit_full_interview")
+async def submit_full_interview_endpoint(
+    turn_data_json: str = Form(...), 
+    files: List[UploadFile] = File(...)
 ):
     """
-    This is the main "brain" loop.
-    It analyzes the user's answer and decides what to do next.
+    This is the "brain" that receives all data at the end,
+    runs all analysis, and returns the final report.
     """
     if not stt_model or not judgment_model:
         raise HTTPException(status_code=500, detail="Server models are not ready.")
     
-    if session_id not in interview_sessions:
-        raise HTTPException(status_code=404, detail="Invalid session ID")
-    
-    session = interview_sessions[session_id]
-    tmp_path = ""
-
     try:
-        # --- 1. Get all data for this turn ---
-        current_question_text = session["question_list"][session["turn_count"]]
+        turn_data_list = json.loads(turn_data_json)
+        file_map = {f.filename: f for f in files}
+        conversation_history = []
         
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-            contents = await audio_file.read()
-            tmp.write(contents)
-            tmp_path = tmp.name
+        for turn in turn_data_list:
+            question_text = turn.get("question_text")
+            audio_file_key = turn.get("audio_file_key")
+            cv_scores_key = turn.get("cv_scores_key")
             
-        result = stt_model.transcribe(tmp_path, fp16=False)
-        user_answer_text = result["text"]
-        if not user_answer_text: user_answer_text = "(No speech detected)"
-        
-        cv_scores_list = json.loads(cv_scores_json)
-        avg_posture = np.mean([s[0] for s in cv_scores_list]) if cv_scores_list else 0.5
-        avg_eye_contact_pct = np.mean([1 if s[1] else 0 for s in cv_scores_list]) if cv_scores_list else 0.5
-        total_blinks = np.sum([1 for s in cv_scores_list if s[2]]) if cv_scores_list else 0
-        
-        audio_data, sample_rate = sf.read(tmp_path, dtype='float32')
-        if audio_data.ndim > 1: audio_data = audio_data.mean(axis=1)
-        if sample_rate != 22050:
-            audio_data = librosa.resample(audio_data, orig_sr=sample_rate, target_sr=22050)
-            sample_rate = 22050
-        audio_scores = analyze_audio_features(audio_data, sample_rate)
-        
-        content_score = evaluate_answer(current_question_text, user_answer_text)
-        
-        os.remove(tmp_path)
-
-        # --- 2. Save this turn's data to the session ---
-        session["conversation_history"].append({
-            "question": current_question_text,
-            "answer": user_answer_text,
-            "scores": {
-                "content_score": content_score,
-                "audio_confidence": audio_scores.get("confidence", 0.0),
-                "audio_nervousness": audio_scores.get("nervousness", 0.0),
-                "audio_fluency": audio_scores.get("fluency", 0.0),
-                "avg_posture": avg_posture,
-                "eye_contact_percentage": avg_eye_contact_pct,
-                "total_blinks": total_blinks 
-            }
-        })
-        session["turn_count"] += 1
-        
-        # --- 3. Decide what to do next ---
-        if session["turn_count"] >= len(session["question_list"]):
-            # --- INTERVIEW ENDS ---
-            final_report = _generate_final_report(session["conversation_history"])
-            del interview_sessions[session_id] # Clean up session
-            return {
-                "status": "COMPLETE",
-                "final_report": final_report,
-                "full_conversation": session["conversation_history"]
-            }
-        else:
-            # --- INTERVIEW CONTINUES ---
-            new_question_text = session["question_list"][session["turn_count"]]
-            new_question_audio_b64 = generate_audio_b64(new_question_text)
+            audio_file = file_map.get(audio_file_key)
+            cv_scores_file = file_map.get(cv_scores_key)
             
-            return {
-                "status": "CONTINUE",
-                "next_question_text": new_question_text,
-                "next_question_audio_b64": new_question_audio_b64
-            }
+            if not all([question_text, audio_file, cv_scores_file]):
+                raise HTTPException(status_code=400, detail="Missing data for a turn")
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+                contents = await audio_file.read()
+                tmp.write(contents)
+                audio_tmp_path = tmp.name
+            
+            result = stt_model.transcribe(audio_tmp_path, fp16=False)
+            user_answer_text = result["text"]
+            if not user_answer_text: user_answer_text = "(No speech detected)"
+            
+            cv_scores_contents = await cv_scores_file.read()
+            cv_scores_list = json.loads(cv_scores_contents.decode('utf-8'))
+            avg_posture = np.mean([s[0] for s in cv_scores_list]) if cv_scores_list else 0.5
+            avg_eye_contact_pct = np.mean([1 if s[1] else 0 for s in cv_scores_list]) if cv_scores_list else 0.5
+            total_blinks = np.sum([1 for s in cv_scores_list if s[2]]) if cv_scores_list else 0
+            
+            audio_data, sample_rate = sf.read(audio_tmp_path, dtype='float32')
+            if audio_data.ndim > 1: audio_data = audio_data.mean(axis=1)
+            if sample_rate != 22050:
+                audio_data = librosa.resample(audio_data, orig_sr=sample_rate, target_sr=22050)
+                sample_rate = 22050
+            audio_scores = analyze_audio_features(audio_data, sample_rate)
+            
+            content_score = evaluate_answer(question_text, user_answer_text)
+            
+            os.remove(audio_tmp_path)
+
+            conversation_history.append({
+                "question": question_text,
+                "answer": user_answer_text,
+                "scores": {
+                    "content_score": content_score,
+                    "audio_confidence": audio_scores.get("confidence", 0.0),
+                    "audio_nervousness": audio_scores.get("nervousness", 0.0),
+                    "audio_fluency": audio_scores.get("fluency", 0.0),
+                    "avg_posture": avg_posture,
+                    "eye_contact_percentage": avg_eye_contact_pct,
+                    "total_blinks": total_blinks 
+                }
+            })
+
+        final_report = _generate_final_report(conversation_history)
+        
+        return {
+            "status": "COMPLETE",
+            "final_report": final_report,
+            "full_conversation": conversation_history
+        }
 
     except Exception as e:
-        if 'tmp_path' in locals() and os.path.exists(tmp_path):
-             os.remove(tmp_path)
-        if session_id in interview_sessions:
-            del interview_sessions[session_id] # Clean up on error
-        print(f"Error in /submit_turn: {e}")
+        if 'audio_tmp_path' in locals() and os.path.exists(audio_tmp_path):
+             os.remove(audio_tmp_path)
+        print(f"Error in /submit_full_interview: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- FEATURE 3: AI CODE REVIEW ---
-@app.post("/generate_coding_problem")
-def generate_coding_problem_endpoint(request: CodingProblemRequest):
-    try:
-        problem_json = get_coding_problem(request.skills, request.difficulty)
-        return problem_json
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/evaluate_code")
-def evaluate_code_endpoint(request: CodeEvaluationRequest):
-    try:
-        review_text = evaluate_code_solution(request.problem_description, request.user_code)
-        return {"review_text": review_text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# --- (Utility endpoint) ---
+# --- (Utility endpoint for CV) ---
 @app.post("/analyze_frame")
 async def analyze_frame_endpoint(file: UploadFile = File(...)):
     if not face_mesh or not pose:
@@ -391,7 +353,8 @@ async def analyze_frame_endpoint(file: UploadFile = File(...)):
     except Exception as e:
         return {"posture_score": 0.5, "eye_contact": False, "blink_detected": False}
 
-# --- (Utility endpoint) ---
+# --- (THIS IS THE FIX) ---
+# --- ADDING THIS UTILITY ENDPOINT BACK ---
 @app.post("/parse_resume")
 async def parse_resume_endpoint(file: UploadFile = File(...)):
     """
@@ -407,6 +370,7 @@ async def parse_resume_endpoint(file: UploadFile = File(...)):
             tmp.write(contents)
             tmp_path = tmp.name
         
+        # Call the full parser from our NLP module
         parsed_data = parse_resume(pdf_path=tmp_path)
         os.remove(tmp_path)
         return parsed_data
@@ -415,3 +379,26 @@ async def parse_resume_endpoint(file: UploadFile = File(...)):
         if os.path.exists(tmp_path): os.remove(tmp_path)
         print(f"Error in /parse_resume: {e}")
         raise HTTPException(status_code=500, detail=f"Error parsing resume: {e}")
+
+# --- FEATURE 3: AI CODE REVIEW ---
+@app.post("/generate_coding_problem")
+def generate_coding_problem_endpoint(request: CodingProblemRequest):
+    """
+    Generates a coding problem based on the user's skills AND difficulty.
+    """
+    try:
+        problem_json = get_coding_problem(request.skills, request.difficulty)
+        return problem_json
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/evaluate_code")
+def evaluate_code_endpoint(request: CodeEvaluationRequest):
+    """
+    Evaluates a user's text-based code solution.
+    """
+    try:
+        review_text = evaluate_code_solution(request.problem_description, request.user_code)
+        return {"review_text": review_text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
