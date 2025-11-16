@@ -1,7 +1,7 @@
 import requests
 import json
 import re
-from typing import List, Dict # Added for type hinting
+from typing import List, Dict, Any
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
@@ -15,13 +15,12 @@ def generate_response(prompt: str, model: str = "mistral") -> str:
         "prompt": prompt,
         "stream": False,
         "options": {
-            "temperature": 0.3 # Lower temperature for more predictable, professional responses
+            "temperature": 0.3 
         }
     }
     try:
         response = requests.post(OLLAMA_URL, json=payload)
         response.raise_for_status()
-        # Clean up the response, remove newlines and leading/trailing spaces
         clean_response = response.json().get("response", "").strip()
         return clean_response
     except requests.exceptions.RequestException as e:
@@ -43,25 +42,19 @@ def evaluate_answer(question: str, answer: str) -> float:
     Provide ONLY the score as a single float (e.g., 0.85) and absolutely no other text.
     Score:
     """
-    score_str = generate_response(prompt).replace('"', '').strip() # Clean up response
+    score_str = generate_response(prompt).replace('"', '').strip()
     
-    # Try to find a float in the response
     match = re.search(r"(\d\.\d+)", score_str)
     
     try:
         if match:
             return float(match.group(1))
         else:
-            # Try to convert the whole string, in case it's just "0.8"
             return float(score_str)
     except (ValueError, TypeError):
         print(f"Warning: Could not parse score from Ollama response: '{score_str}'")
-        return 0.5  # Default score if parsing fails
+        return 0.5
 
-# --- DELETED get_interview_followup() function ---
-# We are no longer doing turn-by-turn feedback.
-
-# --- NEW, UPGRADED FUNCTION ---
 def generate_question_list(skills: list, experience: list, difficulty: str, num_questions: int) -> List[str]:
     """
     Generate a *list* of interview questions based on user preferences.
@@ -90,7 +83,6 @@ def generate_question_list(skills: list, experience: list, difficulty: str, num_
     
     raw_response = generate_response(prompt)
     
-    # Find the JSON array (starts with [)
     json_match = re.search(r'\[.*\]', raw_response, re.DOTALL)
     
     if not json_match:
@@ -101,7 +93,6 @@ def generate_question_list(skills: list, experience: list, difficulty: str, num_
         json_string = json_match.group(0)
         question_list = json.loads(json_string)
         
-        # Make sure it's a list of strings
         if not isinstance(question_list, list) or not all(isinstance(q, str) for q in question_list):
             raise json.JSONDecodeError("Not a list of strings", json_string, 0)
             
@@ -109,26 +100,79 @@ def generate_question_list(skills: list, experience: list, difficulty: str, num_
         
     except json.JSONDecodeError:
         print("Warning: LLM response was not a valid JSON list.")
-        # Fallback: try to grab lines as questions
         questions = [line.strip().replace('"', '').replace(',', '') for line in raw_response.split('\n') if len(line) > 10]
         if questions:
             return questions[:num_questions]
-        return ["Tell me about your experience with Python."] # Final fallback
+        return ["Tell me about your experience with Python."]
 
-# --- CODING CHALLENGE FUNCTIONS (NO CHANGE) ---
-
-def get_coding_problem(skills: list) -> Dict[str, str]:
+def analyze_resume_against_job(resume_text: str, job_description: str) -> Dict[str, Any]:
     """
-    Generates a coding problem based on the user's skills.
+    Compares a resume to a job description and returns a score and analysis.
+    """
+    prompt = f"""
+    You are an expert, data-driven Technical Hiring Manager.
+    Your task is to analyze the following resume against the provided job description.
+    
+    Job Description:
+    ---
+    {job_description}
+    ---
+    
+    Candidate's Resume:
+    ---
+    {resume_text}
+    ---
+    
+    Provide your analysis as a valid JSON object with the following 4 keys:
+    1. "resume_score": An integer (0-100) representing the percentage match of the resume to the job description.
+    2. "matched_skills": A list of key skills from the resume that *match* the job description.
+    3. "missing_skills": A list of key skills from the job description that are *missing* from the resume.
+    4. "profile_summary": A 2-3 sentence professional summary of the candidate's fit for this *specific* role.
+    
+    Return ONLY the valid JSON object and no other text.
+    JSON:
+    """
+    
+    raw_response = generate_response(prompt)
+    json_match = re.search(r'\{.*\}', raw_response, re.DOTALL)
+    
+    if not json_match:
+        print("Warning: Could not find JSON in resume analysis response.")
+        return {"resume_score": 0, "matched_skills": [], "missing_skills": [], "profile_summary": "Error: Could not analyze resume."}
+
+    try:
+        json_string = json_match.group(0)
+        data = json.loads(json_string)
+        # Ensure all keys are present
+        if "resume_score" not in data: data["resume_score"] = 0
+        if "matched_skills" not in data: data["matched_skills"] = []
+        if "missing_skills" not in data: data["missing_skills"] = []
+        if "profile_summary" not in data: data["profile_summary"] = "N/A"
+        return data
+    except json.JSONDecodeError:
+        print("Warning: LLM response for resume analysis was not valid JSON.")
+        return {"resume_score": 0, "matched_skills": [], "missing_skills": [], "profile_summary": "Error: Could not parse analysis."}
+
+
+# --- UPDATED CODING CHALLENGE FUNCTION ---
+def get_coding_problem(skills: list, difficulty: str) -> Dict[str, str]:
+    """
+    Generates a coding problem based on the user's skills AND difficulty.
     Returns JSON with title and description.
     """
     skills_str = ", ".join(skills)
     
+    # If skills are provided, it's personalized. If not, it's general.
+    if skills:
+        context = f"for a candidate with these skills: {skills_str}"
+    else:
+        context = "for a general software engineering candidate"
+    
     prompt = f"""
     You are a technical interviewer. You need to generate a coding challenge
-    for a candidate with these skills: {skills_str}.
+    {context}.
     
-    Generate ONE "medium" difficulty coding problem (like a LeetCode problem).
+    Generate ONE coding problem (like a LeetCode problem) with a **"{difficulty}"** difficulty level.
     
     Return ONLY a valid JSON object with two keys:
     1. "title": A short, clear title (e.g., "Find First Non-Repeating Character").
@@ -146,14 +190,16 @@ def get_coding_problem(skills: list) -> Dict[str, str]:
     
     if not json_match:
         print("Warning: Could not find JSON in coding problem response.")
-        return {"title": "Error", "description": "Could not generate a problem. Please try again."}
+        return {"title": "Error", "description": "Could not generate a problem."}
 
     try:
         json_string = json_match.group(0)
         return json.loads(json_string)
     except json.JSONDecodeError:
         print("Warning: LLM response for coding problem was not valid JSON.")
-        return {"title": "Error", "description": "Could not generate a problem. Please try again."}
+        return {"title": "Error", "description": "Could not parse problem."}
+# --- END OF UPDATE ---
+
 
 def evaluate_code_solution(problem_description: str, user_code: str) -> str:
     """
@@ -190,7 +236,6 @@ def evaluate_code_solution(problem_description: str, user_code: str) -> str:
     
     review_text = generate_response(prompt)
     
-    # Clean up the response
     if review_text.lower().startswith("review:"):
         review_text = review_text[7:].strip()
         

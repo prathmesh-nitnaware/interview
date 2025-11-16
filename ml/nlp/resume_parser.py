@@ -4,9 +4,7 @@ import re
 import json
 import os
 from spacy.matcher import Matcher
-
-# Import your ollama client
-from backend.ollama_client import generate_response
+from backend.ollama_client import generate_response # `parse_resume` needs this
 
 # Load spaCy NLP model
 try:
@@ -16,7 +14,7 @@ except IOError:
     print("Please run: python -m spacy download en_core_web_sm")
     nlp = None
 
-def extract_text_from_pdf(pdf_path):
+def extract_text_from_pdf(pdf_path: str) -> str:
     """
     Extract text from a PDF file.
     Returns: Extracted text as a string.
@@ -32,6 +30,7 @@ def extract_text_from_pdf(pdf_path):
                 text += page.extract_text()
     return text
 
+# --- (THIS IS THE FUNCTION WE NEEDED TO ADD BACK) ---
 def parse_resume_with_spacy(text):
     """
     Parse resume text using spaCy to extract entities.
@@ -42,29 +41,17 @@ def parse_resume_with_spacy(text):
         return {}
         
     doc = nlp(text)
-
-    # --- A simple skill matcher ---
     skill_matcher = Matcher(nlp.vocab)
     skill_patterns = [
-        [{'LOWER': 'python'}],
-        [{'LOWER': 'java'}],
-        [{'LOWER': 'javascript'}],
-        [{'LOWER': 'react'}],
-        [{'LOWER': 'fastapi'}],
-        [{'LOWER': 'opencv'}],
-        [{'LOWER': 'tensorflow'}],
-        [{'LOWER': 'pytorch'}],
+        [{'LOWER': 'python'}], [{'LOWER': 'java'}], [{'LOWER': 'javascript'}],
+        [{'LOWER': 'react'}], [{'LOWER': 'fastapi'}], [{'LOWER': 'opencv'}],
+        [{'LOWER': 'tensorflow'}], [{'LOWER': 'pytorch'}],
         [{'LOWER': 'machine'}, {'LOWER': 'learning'}]
     ]
     skill_matcher.add("SKILLS", skill_patterns)
-    
     matches = skill_matcher(doc)
     skills = [doc[start:end].text for match_id, start, end in matches]
-
-    # --- Extract experience (look for organizations) ---
     experience = [ent.text for ent in doc.ents if ent.label_ == "ORG"]
-
-    # --- Extract education (look for 'University' or 'College') ---
     education = []
     for token in doc:
         if token.text.lower() in ['university', 'college', 'msc', 'bsc']:
@@ -72,7 +59,7 @@ def parse_resume_with_spacy(text):
                 education.append(token.sent.text)
 
     return {
-        "skills": list(set(skills)),  # Remove duplicates
+        "skills": list(set(skills)),
         "experience": list(set(experience)),
         "education": list(set(education)),
     }
@@ -80,7 +67,7 @@ def parse_resume_with_spacy(text):
 def parse_resume_with_ollama(text):
     """
     Parse resume text using Ollama (Mistral) for structured extraction.
-    Returns: Dictionary of extracted information.
+    This is the *main* parser.
     """
     prompt = f"""
     You are an expert resume parser. Extract the following information from the resume text below.
@@ -97,8 +84,6 @@ def parse_resume_with_ollama(text):
     JSON Output:
     """
     response = generate_response(prompt)
-
-    # Extract the JSON from the LLM's chatty response
     json_match = re.search(r'\{.*\}', response, re.DOTALL)
     
     if not json_match:
@@ -108,12 +93,9 @@ def parse_resume_with_ollama(text):
     try:
         json_string = json_match.group(0)
         extracted_data = json.loads(json_string)
-        
-        # Ensure the keys are present
         if "skills" not in extracted_data: extracted_data["skills"] = []
         if "experience" not in extracted_data: extracted_data["experience"] = []
         if "education" not in extracted_data: extracted_data["education"] = []
-            
         return extracted_data
     except json.JSONDecodeError:
         print("Warning: Ollama response was not valid JSON. Falling back to spaCy.")
@@ -129,5 +111,5 @@ def parse_resume(pdf_path=None, text=None):
     elif not text:
         raise ValueError("Provide either a PDF path or resume text.")
 
-    # Use Ollama for structured extraction (fallback to spaCy)
     return parse_resume_with_ollama(text)
+# --- (END OF FUNCTION WE NEEDED) ---
