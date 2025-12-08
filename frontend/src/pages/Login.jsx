@@ -1,114 +1,71 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api';
-import { setToken } from '../utils/auth';
-import '../App.css'; // Ensure global styles are loaded
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    // Clear error when user starts typing
-    if (error) setError('');
-  };
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    // Basic validation
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await authAPI.login(formData.email, formData.password);
-      
-      // 1. Save the session token
-      setToken(response.token);
-      
-      // 2. CRITICAL FIX: Save user info so Dashboard can read the name
-      if (response.user) {
-        localStorage.setItem('mockai_user', JSON.stringify(response.user));
-      }
-      
-      // 3. Redirect to dashboard
-      navigate('/dashboard');
-      
-    } catch (err) {
-      console.error("Login Error:", err);
-      setError(err.message || 'Login failed. Please check your credentials.');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: integrate backend login
+    console.log("Login", form);
+    navigate("/dashboard");
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth-page">
+      <div className="hero-shape shape-1" />
+      <div className="hero-shape shape-3" />
+
+      <div className="login-card fade-in-up delay-2">
         <div className="auth-header">
-          <h1 className="auth-title">Welcome Back</h1>
-          <p>Sign in to your MockAi-Interview account</p>
+          <div className="logo-circle small">AI</div>
+          <h2>Welcome Back</h2>
+          <p className="auth-sub">
+            Continue improving your interview readiness with AI.
+          </p>
         </div>
-        
+
+        <button className="oauth-btn">
+          <span>G</span> Continue with Google
+        </button>
+        <button className="oauth-btn">
+          <span>🐙</span> Continue with GitHub
+        </button>
+
+        <div className="divider">or continue with email</div>
+
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              className="form-input"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              name="password"
-              className="form-input"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-          
-          {error && (
-            <div className={`alert ${error.includes('registered') ? 'alert-warning' : 'alert-error'}`}>
-              {error}
-            </div>
-          )}
-          
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-            disabled={loading}
-          >
-            {loading ? 'Signing In...' : 'Sign In'}
+          <input
+            className="glass-input"
+            name="email"
+            type="email"
+            placeholder="Email Address"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            className="glass-input"
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+
+          <button type="submit" className="btn-primary full glow">
+            Login
           </button>
         </form>
-        
-        <div className="auth-footer">
-          <p>Don't have an account? <Link to="/signup" className="auth-link">Sign up here</Link></p>
-          <Link to="/" className="back-link">← Back to Home</Link>
-        </div>
+
+        <p className="auth-footer">
+          New here? <Link to="/signup">Create Account</Link>
+        </p>
       </div>
     </div>
   );
