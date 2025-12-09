@@ -1,71 +1,110 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import InputField from '../components/forms/InputField';
+import '../App.css';
+import './Login.css'; // We will create this next
 
 const Login = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState(null);
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const location = useLocation();
 
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  // Redirect to where they came from, or dashboard by default
+  const from = location.state?.from?.pathname || "/dashboard";
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: integrate backend login
-    console.log("Login", form);
-    navigate("/dashboard");
+    if (!formData.email || !formData.password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    const result = await login(formData.email, formData.password);
+    
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
+      setError(result.message || "Invalid email or password");
+    }
   };
 
   return (
-    <div className="auth-page">
-      <div className="hero-shape shape-1" />
-      <div className="hero-shape shape-3" />
+    <div className="page-container login-container">
+      {/* Show Public Navbar on Login Page */}
+      <Navbar /> 
 
-      <div className="login-card fade-in-up delay-2">
-        <div className="auth-header">
-          <div className="logo-circle small">AI</div>
-          <h2>Welcome Back</h2>
-          <p className="auth-sub">
-            Continue improving your interview readiness with AI.
-          </p>
-        </div>
+      <div className="login-content animate-fade-in-up">
+        <Card className="login-card">
+          <div className="login-header">
+            <div className="icon-glow-wrapper">
+              <LogIn size={32} className="text-primary" />
+            </div>
+            <h2 className="text-gradient">Welcome Back</h2>
+            <p className="text-muted">Access your personal AI career coach.</p>
+          </div>
 
-        <button className="oauth-btn">
-          <span>G</span> Continue with Google
-        </button>
-        <button className="oauth-btn">
-          <span>🐙</span> Continue with GitHub
-        </button>
+          {error && (
+            <div className="error-alert">
+              <AlertCircle size={18} />
+              <span>{error}</span>
+            </div>
+          )}
 
-        <div className="divider">or continue with email</div>
+          <form onSubmit={handleSubmit}>
+            <InputField
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              icon={<Mail size={18} />}
+              required
+            />
+            
+            <InputField
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              icon={<Lock size={18} />}
+              required
+            />
 
-        <form onSubmit={handleSubmit}>
-          <input
-            className="glass-input"
-            name="email"
-            type="email"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            className="glass-input"
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+            <div className="form-options">
+              <label className="checkbox-label">
+                <input type="checkbox" /> 
+                <span>Remember me</span>
+              </label>
+              <Link to="/forgot-password" class="link-sm">Forgot Password?</Link>
+            </div>
 
-          <button type="submit" className="btn-primary full glow">
-            Login
-          </button>
-        </form>
+            <Button 
+              type="submit" 
+              variant="primary" 
+              className="w-full mt-4" 
+              isLoading={loading}
+            >
+              Sign In
+            </Button>
+          </form>
 
-        <p className="auth-footer">
-          New here? <Link to="/signup">Create Account</Link>
-        </p>
+          <div className="login-footer">
+            <p>Don't have an account? <Link to="/signup" className="text-gradient link-bold">Sign Up</Link></p>
+          </div>
+        </Card>
       </div>
     </div>
   );

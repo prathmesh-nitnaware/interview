@@ -1,26 +1,228 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* =========================================
+   1. GLOBAL VARIABLES & THEME CONFIG
+   ========================================= */
+:root {
+  /* Core Palette */
+  --primary: #7c4df0; /* Neon Purple */
+  --secondary: #3aa9df; /* Cyber Blue */
+  --accent: #ff4757; /* Alert Red/Pink */
+
+  /* Backgrounds */
+  --bg-dark: #0a0b1e; /* Deep Space Blue */
+  --bg-darker: #050611;
+
+  /* Glassmorphism settings */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 12px;
+
+  /* Text */
+  --text-main: #ffffff;
+  --text-muted: #a0a0b0;
+
+  /* Effects */
+  --neon-glow: 0 0 16px rgba(124, 97, 240, 0.45);
+  --card-radius: 16px;
+  --font-main: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-:root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
+/* Light Mode Overrides (Optional based on contract) */
+body.light-mode {
+  --bg-dark: #f0f2f5;
+  --bg-darker: #ffffff;
+  --text-main: #1a1b1e;
+  --text-muted: #555;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+/* =========================================
+   2. RESET & BASE STYLES
+   ========================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
+  font-family: var(--font-main);
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  line-height: 1.5;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  /* Global Particle Background Simulation */
+  background-image: radial-gradient(
+      circle at 15% 50%,
+      rgba(124, 77, 240, 0.15),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(58, 169, 223, 0.15),
+      transparent 25%
+    );
+  background-attachment: fixed;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-button {
-  font-family: inherit;
+::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* =========================================
+   3. UTILITY CLASSES (Used Everywhere)
+   ========================================= */
+
+/* Layout Utils */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  width: 100%;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Typography Utils */
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--secondary) 0%,
+    #fff 50%,
+    var(--primary) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-success {
+  color: #2ed573;
+}
+.text-danger {
+  color: #ff4757;
+}
+.text-primary {
+  color: var(--primary);
+}
+
+/* Component Utils */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--neon-glow);
+  border-color: rgba(124, 97, 240, 0.3);
+}
+
+/* =========================================
+   4. GLOBAL ANIMATIONS
+   ========================================= */
+
+/* Fade In Up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Simple Fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Pulse / Glow */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(124, 97, 240, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(124, 97, 240, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 97, 240, 0);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Spinner */
+.neon-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

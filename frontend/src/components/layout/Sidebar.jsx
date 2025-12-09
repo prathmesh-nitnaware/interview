@@ -1,41 +1,72 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Mic, 
+  User, 
+  Settings, 
+  LogOut, 
+  ChevronLeft, 
+  ChevronRight 
+} from 'lucide-react';
+import '../../styles/layout.css'; // We will add the specific styles below
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
 
+  const menuItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Resume ATS', path: '/resume/upload', icon: <FileText size={20} /> },
+    { name: 'Interview', path: '/interview/setup', icon: <Mic size={20} /> },
+    { name: 'Profile', path: '/profile', icon: <User size={20} /> },
+  ];
+
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    // Add auth logout logic here
+    navigate('/login');
   };
 
-  return (
-    <aside className="sidebar">
-      <div className="sidebar__brand">
-        <div className="sidebar__logo">AI</div>
-        <span className="sidebar__title">Mock Interview</span>
-      </div>
+  const isActive = (path) => location.pathname === path;
 
-      <nav className="sidebar__nav">
-        <NavLink to="/dashboard" className="sidebar__link">
-          <span>📊</span> <span>Analytics</span>
-        </NavLink>
-        <NavLink to="/interview" className="sidebar__link">
-          <span>🎤</span> <span>Interview</span>
-        </NavLink>
-        <NavLink to="/resume" className="sidebar__link">
-          <span>📄</span> <span>My Resume</span>
-        </NavLink>
-        <NavLink to="/profile" className="sidebar__link">
-          <span>👤</span> <span>Profile</span>
-        </NavLink>
+  return (
+    <aside className={`neon-sidebar glass-card ${isCollapsed ? 'collapsed' : ''}`}>
+      
+      {/* Toggle Button */}
+      <button 
+        className="sidebar-toggle" 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </button>
+
+      {/* Navigation Menu */}
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
+            title={isCollapsed ? item.name : ''}
+          >
+            <div className="icon-wrapper">{item.icon}</div>
+            <span className="link-text">{item.name}</span>
+            {isActive(item.path) && <div className="active-glow" />}
+          </Link>
+        ))}
       </nav>
 
-      <div className="sidebar__footer">
-        <button className="btn btn-outline" onClick={handleLogout}>
-          Sign Out
+      {/* Bottom Section */}
+      <div className="sidebar-footer">
+        <Link to="/settings" className="sidebar-link">
+          <div className="icon-wrapper"><Settings size={20} /></div>
+          <span className="link-text">Settings</span>
+        </Link>
+        <button onClick={handleLogout} className="sidebar-link logout-btn">
+          <div className="icon-wrapper"><LogOut size={20} /></div>
+          <span className="link-text">Logout</span>
         </button>
       </div>
     </aside>

@@ -1,45 +1,152 @@
-:root {
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.12);
+/* =========================================
+   THEME.CSS
+   Visual effects, animations, and specific
+   neon/cyberpunk utility classes.
+   ========================================= */
+
+/* -----------------------------------------
+   1. NEON TEXT UTILITIES
+   ----------------------------------------- */
+.text-neon-purple {
+  color: var(--primary);
+  text-shadow: 0 0 10px rgba(124, 77, 240, 0.5);
 }
 
-/* Light theme */
-html[data-theme='light'] {
-  --color-bg: #f5f7fa;
-  --color-bg-elevated: #ffffff;
-  --color-sidebar: #ffffff;
-  --color-border-subtle: #e4e7ee;
-
-  --color-text: #111827;
-  --color-text-muted: #6b7280;
-
-  --color-primary: #6a5ae0;
-  --color-secondary: #2d9cdb;
-  --color-accent: #f2c94c;
-
-  --color-success: #27ae60;
-  --color-danger: #eb5757;
-
-  --color-chip-bg: #f3f4ff;
+.text-neon-blue {
+  color: var(--secondary);
+  text-shadow: 0 0 10px rgba(58, 169, 223, 0.5);
 }
 
-/* Dark theme */
-html[data-theme='dark'] {
-  --color-bg: #141522;
-  --color-bg-elevated: #1e2033;
-  --color-sidebar: #1a1c2b;
-  --color-border-subtle: #2e3148;
+.text-neon-red {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+}
 
-  --color-text: #f9fafb;
-  --color-text-muted: #9ca3af;
+/* -----------------------------------------
+   2. BACKGROUND PATTERNS
+   ----------------------------------------- */
+/* Grid Pattern Overlay */
+.bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
 
-  --color-primary: #8b7bf5;
-  --color-secondary: #43b3ff;
-  --color-accent: #f2c94c;
+/* Dot Pattern */
+.bg-dot-pattern {
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
 
-  --color-success: #34d399;
-  --color-danger: #fb7185;
+/* -----------------------------------------
+   3. GLASS VARIANTS
+   ----------------------------------------- */
+.glass-heavy {
+  background: rgba(10, 11, 30, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
 
-  --color-chip-bg: #232544;
+.glass-light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* -----------------------------------------
+   4. ANIMATION UTILITIES
+   ----------------------------------------- */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 12s linear infinite;
+}
+
+/* Keyframes */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* -----------------------------------------
+   5. COMPONENT-SPECIFIC THEMES
+   ----------------------------------------- */
+
+/* Custom Scrollbar for specific containers */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--bg-dark);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 20px;
+}
+
+/* Avatar Glow Rings */
+.avatar-glow {
+  position: relative;
+}
+
+.avatar-glow::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--primary), var(--secondary));
+  z-index: -1;
+  animation: spin 4s linear infinite;
 }

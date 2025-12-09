@@ -1,0 +1,129 @@
+/* Container */
+.signup-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  /* Optional background enhancement for signup page specifically */
+  background-image: radial-gradient(
+      circle at 10% 20%,
+      rgba(58, 169, 223, 0.1) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(124, 77, 240, 0.1) 0%,
+      transparent 40%
+    );
+}
+
+.signup-content {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 4rem;
+  position: relative;
+  z-index: 10;
+}
+
+/* Card Overrides */
+.signup-card {
+  padding: 2rem 2.5rem !important;
+  background: rgba(
+    10,
+    11,
+    30,
+    0.75
+  ); /* Slightly more opaque for better readability */
+}
+
+/* Header */
+.signup-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.icon-glow-wrapper {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  background: rgba(58, 169, 223, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(58, 169, 223, 0.2);
+  border: 1px solid rgba(58, 169, 223, 0.2);
+}
+
+.signup-header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.signup-header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Terms Text */
+.terms-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 1.5rem 0;
+  line-height: 1.5;
+}
+
+.terms-text .highlight {
+  color: var(--text-main);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Footer */
+.signup-footer {
+  margin-top: 2rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.link-bold {
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.link-bold:hover {
+  text-decoration: underline;
+}
+
+/* Error Alert (shared style with login, repeated here for safety) */
+.error-alert {
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Utilities */
+.text-secondary {
+  color: var(--secondary);
+}
+.w-full {
+  width: 100%;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}

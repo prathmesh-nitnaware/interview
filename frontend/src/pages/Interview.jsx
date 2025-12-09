@@ -1,69 +1,159 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { Briefcase, Clock, Code, Zap } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import InputField from '../components/forms/InputField';
+import '../App.css'; // Global styles
+import './Interview.css'; // Specific styles for this page (see below)
 
 const Interview = () => {
-  return (
-    <div className="page">
-      <div className="grid grid-2">
-        <Card>
-          <div className="card-header">
-            <h3>Start a new interview</h3>
-            <span className="card-subtitle">Choose the mode and difficulty</span>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Interview type</label>
-            <select className="form-input">
-              <option>Behavioral</option>
-              <option>Coding</option>
-              <option>System Design</option>
-            </select>
-          </div>
-          <div className="form-field">
-            <label className="form-label">Difficulty</label>
-            <select className="form-input">
-              <option>Easy</option>
-              <option>Medium</option>
-              <option>Hard</option>
-            </select>
-          </div>
-          <Button>Start Interview</Button>
-        </Card>
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    role: '',
+    experience: '0-2 years',
+    type: 'Technical', // Technical, Behavioral, System Design
+    techStack: ''
+  });
 
-        <Card>
-          <div className="card-header">
-            <h3>Live feedback preview</h3>
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleOptionSelect = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.role) return alert("Please enter a Job Role");
+
+    setLoading(true);
+    try {
+      // 1. Call Backend to initialize session
+      const data = await api.startInterview(
+        formData.role, 
+        formData.experience, 
+        formData.type
+      );
+      
+      // 2. Redirect to Live Room with Session ID
+      // Expecting response: { session_id: "...", first_question: "..." }
+      if (data && data.session_id) {
+        navigate(`/interview/session?session_id=${data.session_id}`);
+      } else {
+        throw new Error("Invalid session data");
+      }
+    } catch (error) {
+      console.error("Setup failed:", error);
+      alert("Failed to start interview. Check backend connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="page-container interview-setup-container">
+      
+      {/* Left Column: Visual/Info */}
+      <div className="setup-info animate-slide-in-left">
+        <h1 className="hero-title">
+          Design Your <br />
+          <span className="text-gradient">Perfect Interview</span>
+        </h1>
+        <p className="hero-subtitle">
+          Configure the AI persona to match your target job description. 
+          Our system adapts to your experience level and technical requirements.
+        </p>
+        
+        <div className="feature-list">
+          <div className="feature-item">
+            <div className="feature-icon"><Zap size={20} /></div>
+            <span>Real-time speech analysis</span>
           </div>
-          <p className="card-text">
-            During an interview we analyse:
-          </p>
-          <ul className="list">
-            <li>🎤 Voice tone &amp; nervousness</li>
-            <li>👀 Eye contact &amp; blinking patterns</li>
-            <li>🧍‍♂️ Posture &amp; body language</li>
-          </ul>
-          <div className="chart chart--bars">
-            <div className="bar">
-              <span>Confidence</span>
-              <div className="bar__track">
-                <div className="bar__fill bar__fill--primary" style={{ width: '65%' }} />
-              </div>
-            </div>
-            <div className="bar">
-              <span>Nervousness</span>
-              <div className="bar__track">
-                <div className="bar__fill bar__fill--danger" style={{ width: '30%' }} />
-              </div>
-            </div>
-            <div className="bar">
-              <span>Eye contact</span>
-              <div className="bar__track">
-                <div className="bar__fill bar__fill--accent" style={{ width: '72%' }} />
-              </div>
-            </div>
+          <div className="feature-item">
+            <div className="feature-icon"><Code size={20} /></div>
+            <span>Technical & Behavioral tracks</span>
           </div>
-        </Card>
+        </div>
       </div>
+
+      {/* Right Column: Configuration Form */}
+      <Card className="setup-card animate-slide-in-right">
+        <form onSubmit={handleSubmit}>
+          <h2 className="form-title">Session Configuration</h2>
+
+          {/* Job Role Input */}
+          <div className="form-group">
+            <InputField
+              label="Target Job Role"
+              name="role"
+              placeholder="e.g. Senior React Developer"
+              value={formData.role}
+              onChange={handleChange}
+              icon={<Briefcase size={18} />}
+              required
+            />
+          </div>
+
+          {/* Tech Stack (Optional) */}
+          <div className="form-group">
+            <InputField
+              label="Tech Stack / Keywords"
+              name="techStack"
+              placeholder="e.g. AWS, Node.js, TypeScript"
+              value={formData.techStack}
+              onChange={handleChange}
+              icon={<Code size={18} />}
+            />
+          </div>
+
+          {/* Experience Level Selector */}
+          <div className="form-group">
+            <label className="form-label">Experience Level</label>
+            <div className="options-grid">
+              {['0-2 years', '3-5 years', '5+ years'].map((exp) => (
+                <div 
+                  key={exp}
+                  className={`option-chip ${formData.experience === exp ? 'active' : ''}`}
+                  onClick={() => handleOptionSelect('experience', exp)}
+                >
+                  {exp}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Interview Type Selector */}
+          <div className="form-group">
+            <label className="form-label">Interview Focus</label>
+            <div className="options-grid">
+              {['Technical', 'Behavioral', 'Mixed'].map((type) => (
+                <div 
+                  key={type}
+                  className={`option-chip ${formData.type === type ? 'active' : ''}`}
+                  onClick={() => handleOptionSelect('type', type)}
+                >
+                  {type}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <Button 
+              type="submit" 
+              variant="primary" 
+              isLoading={loading} 
+              className="w-full"
+            >
+              Initialize AI Session 🚀
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 };

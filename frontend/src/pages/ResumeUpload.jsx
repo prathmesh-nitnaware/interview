@@ -1,70 +1,126 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { FileText, ArrowRight, ShieldCheck, Cpu } from 'lucide-react';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import FileUpload from '../components/FileUpload';
+import '../App.css';
+import './ResumeUpload.css'; // Created in step 2
 
 const ResumeUpload = () => {
   const navigate = useNavigate();
-  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) setFileName(file.name);
+  const handleFileSelect = (selectedFile) => {
+    setFile(selectedFile);
+    setError(null);
   };
 
-  const handleAnalyze = () => {
-    // TODO: send to backend; for now just navigate
-    navigate("/resume/result");
+  const handleUpload = async () => {
+    if (!file) {
+      setError("Please select a resume file first.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Upload File to Backend
+      const data = await api.uploadResume(file);
+      
+      // 2. Redirect to Result Page with the returned Resume ID
+      // Passing state via router avoids putting ID in URL immediately
+      navigate('/resume/result', { 
+        state: { 
+          resume_id: data.resume_id,
+          raw_text: data.raw_text 
+        } 
+      });
+
+    } catch (err) {
+      console.error("Upload Error:", err);
+      setError("Failed to process resume. Please try a different file.");
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="resume-page">
-      <div className="container resume-inner">
-        <div className="resume-left">
-          <div className="tag-pill">Resume Intelligence</div>
-          <h1>Upload Your Resume</h1>
-          <p>
-            We’ll analyze your resume against ATS criteria, role keywords, and
-            industry standards to give you a clear, actionable score.
-          </p>
-
-          <ul className="resume-list">
-            <li>ATS compatibility score and keyword match.</li>
-            <li>Strengths, weaknesses, and missing sections.</li>
-            <li>Suggestions for better targeting your dream role.</li>
-          </ul>
+    <div className="page-container resume-upload-container">
+      
+      {/* Hero Section */}
+      <div className="upload-hero animate-fade-in">
+        <div className="icon-badge">
+          <Cpu size={20} /> AI-Powered ATS
         </div>
+        <h1 className="text-gradient">Optimize Your Resume</h1>
+        <p className="text-muted">
+          Upload your CV to see how it scores against industry standards. 
+          Our AI checks for keywords, formatting, and impact metrics.
+        </p>
+      </div>
 
-        <div className="resume-right">
-          <div className="resume-card">
-            <h3>Resume Upload</h3>
-            <p className="resume-sub">
-              Upload a PDF or DOCX file to start the ATS analysis.
-            </p>
-
-            <label className="file-drop">
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                hidden
-                onChange={handleFileChange}
-              />
-              <span>Click to browse or drop your resume here</span>
-            </label>
-
-            {fileName && (
-              <p className="file-name">Selected file: {fileName}</p>
-            )}
-
-            <button
-              className="btn-primary full"
-              onClick={handleAnalyze}
-              disabled={!fileName}
-              style={{ opacity: fileName ? 1 : 0.5 }}
-            >
-              Analyze with ATS (Mock)
-            </button>
+      {/* Main Upload Card */}
+      <Card className="upload-main-card animate-fade-in-up">
+        {loading ? (
+          <div className="scanning-ui">
+            <div className="scanner-line"></div>
+            <div className="doc-icon-large">
+              <FileText size={64} />
+            </div>
+            <h3 className="mt-6 text-white">Analyzing Document...</h3>
+            <p className="text-muted">Extracting skills, experience, and education.</p>
           </div>
+        ) : (
+          <>
+            <FileUpload 
+              onFileSelect={handleFileSelect} 
+              label="Drop your resume here"
+              accept=".pdf,.docx,.txt"
+            />
+            
+            {error && <p className="error-text">{error}</p>}
+
+            <div className="upload-actions">
+              <Button 
+                onClick={handleUpload} 
+                disabled={!file} 
+                variant="primary" 
+                className="w-full btn-lg"
+                icon={<ArrowRight size={20} />}
+              >
+                Scan Resume
+              </Button>
+            </div>
+
+            <div className="privacy-note">
+              <ShieldCheck size={14} />
+              <span>Your data is processed securely and not shared with third parties.</span>
+            </div>
+          </>
+        )}
+      </Card>
+      
+      {/* Info Steps */}
+      <div className="steps-grid">
+        <div className="step-item">
+          <span className="step-number">01</span>
+          <h4>Upload</h4>
+          <p>Support for PDF & DOCX formats.</p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">02</span>
+          <h4>Analyze</h4>
+          <p>AI extracts key metrics & skills.</p>
+        </div>
+        <div className="step-item">
+          <span className="step-number">03</span>
+          <h4>Improve</h4>
+          <p>Get actionable feedback instantly.</p>
         </div>
       </div>
+
     </div>
   );
 };

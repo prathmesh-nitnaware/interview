@@ -1,0 +1,229 @@
+/* Container */
+.landing-container {
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Hero Section */
+.hero-section {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.hero-content {
+  z-index: 10;
+  max-width: 900px;
+}
+
+/* Animated Blobs */
+.blob {
+  position: absolute;
+  filter: blur(80px);
+  z-index: 1;
+  opacity: 0.4;
+  animation: float 10s infinite alternate;
+}
+
+.blob-purple {
+  top: 10%;
+  left: 20%;
+  width: 400px;
+  height: 400px;
+  background: var(--primary);
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+.blob-blue {
+  bottom: 20%;
+  right: 10%;
+  width: 500px;
+  height: 500px;
+  background: var(--secondary);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation-delay: -5s;
+}
+
+/* Typography */
+.hero-title {
+  font-size: 3.5rem;
+  margin: 1.5rem 0;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 5rem;
+  }
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+}
+
+.cursor-blink {
+  color: var(--secondary);
+  animation: blink 1s step-end infinite;
+}
+
+/* Badge */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #2ed573;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #2ed573;
+}
+
+/* Buttons */
+.btn-lg {
+  padding: 16px 32px;
+  font-size: 1.1rem;
+}
+
+.glow-button {
+  background: linear-gradient(90deg, var(--primary), #5b32b5);
+  box-shadow: 0 0 20px rgba(124, 77, 240, 0.4);
+}
+
+.btn-ghost-rounded {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-ghost-rounded:hover {
+  border-color: white;
+  background: rgba(255,255,255,0.05);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Feature Grid */
+.features-section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  position: relative;
+  z-index: 10;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(10, 11, 30, 0.4); /* Darker glass for contrast */
+}
+
+.feature-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  background: rgba(255,255,255,0.05);
+}
+
+.feature-icon-wrapper.purple { color: var(--primary); box-shadow: 0 0 15px rgba(124,77,240,0.2); }
+.feature-icon-wrapper.blue { color: var(--secondary); box-shadow: 0 0 15px rgba(58,169,223,0.2); }
+.feature-icon-wrapper.pink { color: #ff4757; box-shadow: 0 0 15px rgba(255,71,87,0.2); }
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Trust Section */
+.trust-section {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.logos-row {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.2);
+  flex-wrap: wrap;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(20px, 20px) rotate(5deg); }
+  100% { transform: translate(-10px, 30px) rotate(-5deg); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0; /* Start hidden */
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }

@@ -1,0 +1,169 @@
+/* =========================================
+   APP.CSS
+   Global App Structure & Ambient Animations
+   ========================================= */
+
+/* 1. Root Container */
+.app-root {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate; /* Create new stacking context */
+}
+
+/* -----------------------------------------
+   2. AMBIENT BACKGROUND (Floating Shapes)
+   ----------------------------------------- */
+/* These pseudo-elements create the soft, moving neon glow 
+   behind the content, satisfying the "Soft floating shapes" requirement.
+*/
+.app-root::before,
+.app-root::after {
+  content: "";
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: -2;
+  opacity: 0.15;
+  animation: floatBackground 20s infinite alternate;
+}
+
+/* Purple shape (Top Left) */
+.app-root::before {
+  background: var(--primary);
+  top: -100px;
+  left: -100px;
+}
+
+/* Blue shape (Bottom Right) */
+.app-root::after {
+  background: var(--secondary);
+  bottom: -100px;
+  right: -100px;
+  animation-delay: -10s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes floatBackground {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(50px, 50px) scale(1.1);
+  }
+  100% {
+    transform: translate(-30px, 20px) scale(0.9);
+  }
+}
+
+/* -----------------------------------------
+   3. ORBIT ANIMATIONS (Contract Requirement)
+   ----------------------------------------- */
+/* Usage: <div class="orbit-container"><div class="planet"></div></div> */
+.orbit-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  animation: orbitRotate 20s linear infinite;
+}
+
+.orbit-object {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--primary);
+  offset-path: path("M100,100 m-75,0 a75,75 0 1,0 150,0 a75,75 0 1,0 -150,0");
+}
+
+@keyframes orbitRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -----------------------------------------
+   4. CONTENT LAYOUT ADJUSTMENTS
+   ----------------------------------------- */
+/* Ensures content doesn't get hidden behind the fixed Header 
+   or Sidebar on different screen sizes.
+*/
+
+/* Default Padding for Sidebar spacing (Desktop) */
+@media (min-width: 769px) {
+  /* If Sidebar is present, push content */
+  .page-container {
+    padding-left: 280px; /* Sidebar width + gap */
+    padding-top: 2rem;
+    transition: padding-left 0.3s ease;
+  }
+
+  /* When sidebar is collapsed (toggled via JS class on body/parent if needed) */
+  .sidebar-collapsed .page-container {
+    padding-left: 100px;
+  }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .page-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 6rem; /* Space for bottom nav */
+  }
+}
+
+/* -----------------------------------------
+   5. SPECIFIC TEXT EFFECTS
+   ----------------------------------------- */
+.animate-blink {
+  animation: blinkCursor 1s step-end infinite;
+}
+
+@keyframes blinkCursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* -----------------------------------------
+   6. Z-INDEX LAYERING
+   ----------------------------------------- */
+/* Ensure generic layering order */
+.z-bg {
+  z-index: -1;
+}
+.z-base {
+  z-index: 1;
+}
+.z-overlay {
+  z-index: 50;
+}
+.z-modal {
+  z-index: 100;
+}
+.z-toast {
+  z-index: 200;
+}

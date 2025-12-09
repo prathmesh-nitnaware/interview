@@ -1,17 +1,25 @@
-import React from "react";
-import { useTheme } from "../../theme/ThemeContext";
+import React from 'react';
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+import '../../styles/layout.css'; // Uses shared layout styles
 
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
-  const isDark = theme === "dark";
 
   return (
-    <button className="theme-toggle" onClick={toggleTheme}>
-      <span className={`toggle-icon ${isDark ? "active" : ""}`}>🌙</span>
-      <span className={`toggle-icon ${!isDark ? "active" : ""}`}>☀️</span>
-      <span
-        className={`toggle-thumb ${isDark ? "thumb-left" : "thumb-right"}`}
-      />
+    <button 
+      onClick={toggleTheme} 
+      className="theme-toggle-btn glass-card"
+      aria-label="Toggle Dark Mode"
+      title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+    >
+      <div className={`icon-container ${theme === 'dark' ? 'mode-dark' : 'mode-light'}`}>
+        {theme === 'dark' ? (
+          <Moon size={20} className="icon-moon" />
+        ) : (
+          <Sun size={20} className="icon-sun" />
+        )}
+      </div>
     </button>
   );
 };

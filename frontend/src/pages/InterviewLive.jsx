@@ -1,82 +1,202 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Mic, MicOff, Video, Activity, Clock, AlertTriangle } from 'lucide-react';
+import Card from '../components/ui/Card';
+import '../App.css';
+import './InterviewLive.css';
 
 const InterviewLive = () => {
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('session_id');
   const navigate = useNavigate();
 
-  // TODO: wire with backend / websocket later
-  const currentQuestion =
-    "Tell me about a challenging bug you encountered and how you resolved it.";
+  const [question, setQuestion] = useState("Connecting to server...");
+  const [isRecording, setIsRecording] = useState(false);
+  const [status, setStatus] = useState("connecting");
+  const [analysis, setAnalysis] = useState({ clarity: 0, confidence: 0 });
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  const ws = useRef(null);
+  const mediaRecorder = useRef(null);
+  const mediaStream = useRef(null); // Ref to hold stream for cleanup
+  const timerRef = useRef(null);
+
+  // --- TTS Helper ---
+  const speak = (text) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Stop previous speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      // Optional: pick a specific voice if available
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // --- Lifecycle & WS ---
+  useEffect(() => {
+    if (!sessionId) {
+      navigate('/dashboard');
+      return;
+    }
+
+    ws.current = new WebSocket(`ws://localhost:8000/api/interview/live/${sessionId}`);
+
+    ws.current.onopen = () => {
+      console.log("✅ WS Connected");
+      setStatus("active");
+    };
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      switch (data.type) {
+        case 'question':
+          setQuestion(data.content);
+          setStatus("active");
+          speak(data.content); // 🗣️ Trigger AI Voice
+          break;
+        
+        case 'analysis':
+          setAnalysis({
+            clarity: data.clarity || 0,
+            confidence: data.confidence || 0
+          });
+          break;
+          
+        case 'status':
+          setQuestion(data.content);
+          setStatus("processing");
+          break;
+
+        case 'end':
+          setStatus("end");
+          navigate(`/interview/report?session_id=${sessionId}`);
+          break;
+
+        default:
+          break;
+      }
+    };
+
+    // --- CLEANUP (Crucial for Privacy) ---
+    return () => {
+      if (ws.current) ws.current.close();
+      if (timerRef.current) clearInterval(timerRef.current);
+      window.speechSynthesis.cancel(); // Stop voice
+
+      // Stop Camera & Mic
+      if (mediaStream.current) {
+        mediaStream.current.getTracks().forEach(track => track.stop());
+        console.log("🛑 Media tracks stopped");
+      }
+    };
+  }, [sessionId, navigate]);
+
+  // --- Recording Logic ---
+  const startRecording = async () => {
+    try {
+      // Get stream
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStream.current = stream; // Save ref
+      mediaRecorder.current = new MediaRecorder(stream);
+      
+      // Handle data
+      mediaRecorder.current.ondataavailable = (event) => {
+        if (event.data.size > 0 && ws.current.readyState === WebSocket.OPEN) {
+          const reader = new FileReader();
+          reader.readAsDataURL(event.data);
+          reader.onloadend = () => {
+            const base64data = reader.result.split(',')[1];
+            ws.current.send(JSON.stringify({ type: "audio_chunk", data: base64data }));
+          };
+        }
+      };
+
+      mediaRecorder.current.start(1000); 
+      setIsRecording(true);
+      startTimer();
+      
+    } catch (err) {
+      alert("Microphone access is required.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder.current) {
+      mediaRecorder.current.stop();
+      setIsRecording(false);
+      stopTimer();
+      // Signal finished
+      if (ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ 
+            type: "user_answer_finished", 
+            content: "Simulated text answer from user audio" // Mock STT
+        }));
+      }
+    }
+  };
+
+  const startTimer = () => {
+    setElapsedTime(0);
+    timerRef.current = setInterval(() => setElapsedTime(t => t + 1), 1000);
+  };
+
+  const stopTimer = () => clearInterval(timerRef.current);
+  const formatTime = (s) => `${Math.floor(s/60)}:${s%60 < 10 ? '0'+(s%60) : s%60}`;
 
   return (
-    <div className="interview-page">
-      <div className="container interview-inner">
-        {/* LEFT: question + notes */}
-        <div className="interview-left">
-          <div className="tag-pill">Live Mock Session</div>
-          <h1>AI Mock Interview</h1>
-          <p>
-            Answer questions naturally while we track your communication,
-            clarity, and structure. You’ll get a detailed breakdown at the end.
-          </p>
+    <div className="page-container live-container">
+      <div className="status-pill active">
+        <div className={`status-dot ${status === 'active' ? 'active' : 'processing'}`}></div>
+        <span>{status === 'active' ? "Live Session" : "AI Thinking..."}</span>
+      </div>
 
-          <div className="question-card">
-            <h3>Current Question</h3>
-            <p>{currentQuestion}</p>
-            <ul className="question-bullets">
-              <li>Explain context & impact.</li>
-              <li>Walk through your debugging steps.</li>
-              <li>Highlight tools, collaboration, and learning.</li>
-            </ul>
+      <div className="live-grid">
+        <Card className="ai-card">
+          <div className={`ai-avatar ${status === 'processing' ? 'thinking' : ''}`}>
+             <div className="ai-core"></div>
+             <div className="ai-ring ring-1"></div>
+             <div className="ai-ring ring-2"></div>
+          </div>
+          <div className="question-box">
+             <h2 className="text-gradient">AI Interviewer</h2>
+             <p className="current-question">"{question}"</p>
+          </div>
+        </Card>
+
+        <div className="user-section">
+          <div className="metrics-row">
+             <Card className="metric-card">
+               <Activity size={20} className="text-primary"/>
+               <h3>Clarity</h3>
+               <div className="metric-value">{analysis.clarity}%</div>
+             </Card>
+             <Card className="metric-card">
+               <AlertTriangle size={20} className="text-secondary"/>
+               <h3>Confidence</h3>
+               <div className="metric-value">{analysis.confidence}%</div>
+             </Card>
           </div>
 
-          <div className="interview-notes">
-            <h4>Your Notes</h4>
-            <textarea placeholder="Write key points or structure your answer in STAR format..." />
-          </div>
-
-          <div className="interview-bottom-actions">
-            <button className="btn-ghost">⏭ Skip Question</button>
-            <button
-              className="btn-primary"
-              onClick={() => navigate("/interview/report")}
-            >
-              End Session & View Report
-            </button>
-          </div>
-        </div>
-
-        {/* RIGHT: video + live stats */}
-        <div className="interview-right">
-          <div className="video-card">
-            <div className="video-placeholder">
-              <span>Webcam Preview (UI only for now)</span>
+          <div className="controls-area text-center">
+            <div className="timer-display mb-4">
+              <Clock size={16} style={{display:'inline', marginRight:5}} />
+              {formatTime(elapsedTime)}
             </div>
-            <div className="video-controls">
-              <button className="btn-ghost">🎤 Mute</button>
-              <button className="btn-ghost">📷 Camera</button>
-              <button className="btn-primary">▶ Start / Pause</button>
-            </div>
-          </div>
-
-          <div className="stats-card">
-            <h3>Live Indicators (Mock)</h3>
-            <div className="stat-row">
-              <span>Confidence</span>
-              <span>73%</span>
-            </div>
-            <div className="stat-row">
-              <span>Filler Words</span>
-              <span>Low</span>
-            </div>
-            <div className="stat-row">
-              <span>Answer Length</span>
-              <span>Good</span>
-            </div>
-            <div className="stat-row">
-              <span>Clarity</span>
-              <span>Strong</span>
-            </div>
+            
+            {!isRecording ? (
+              <button 
+                 onClick={startRecording} 
+                 className="btn btn-primary"
+                 disabled={status !== 'active'}
+              >
+                 <Mic size={20} style={{marginRight:8}}/> Start Answering
+              </button>
+            ) : (
+              <button onClick={stopRecording} className="btn btn-danger">
+                 <MicOff size={20} style={{marginRight:8}}/> Stop & Submit
+              </button>
+            )}
           </div>
         </div>
       </div>
