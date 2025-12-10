@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { User, Mail, Award, Briefcase, Edit2, Save, X, Camera } from 'lucide-react';
+import { User, Mail, Briefcase, Edit2, Save, X, Camera, Award } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
-import '../App.css';
-import './Profile.css'; // Created in step 2
+import '../styles/theme.css';
+import './Profile.css';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -14,19 +14,16 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ interviews: 0, avgScore: 0 });
   
-  // Local form state
   const [formData, setFormData] = useState({
-    name: user?.name || 'Candidate',
+    name: user?.name || 'Candidate Name',
     email: user?.email || 'user@example.com',
     role: user?.role || 'Software Engineer',
     bio: 'Passionate developer preparing for big tech interviews.'
   });
 
-  // Fetch performance stats on mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Reuse dashboard endpoint to get stats
         const data = await api.getDashboard(user?.id || 'user_123');
         if (data) {
           const totalInterviews = data.interview_scores ? data.interview_scores.length : 0;
@@ -54,123 +51,107 @@ const Profile = () => {
     setTimeout(() => {
       setLoading(false);
       setIsEditing(false);
-      // In a real app, update AuthContext here
     }, 1000);
   };
 
   return (
-    <div className="page-container profile-container animate-fade-in">
+    <div className="profile-root page-container">
       
-      {/* HEADER CARD */}
-      <Card className="profile-header-card">
-        <div className="profile-header-content">
-          <div className="avatar-wrapper">
-            <div className="avatar-placeholder">
-              {formData.name.charAt(0).toUpperCase()}
-            </div>
-            <button className="edit-avatar-btn">
-              <Camera size={16} />
+      {/* Header Section */}
+      <div className="profile-header-grid">
+        <div className="profile-avatar-section">
+          <div className="avatar-large">
+            {formData.name.charAt(0).toUpperCase()}
+            <button className="edit-avatar-trigger">
+              <Camera size={14} />
             </button>
           </div>
+        </div>
+        
+        <div className="profile-info-section">
+          <div className="info-header">
+            <h1 className="profile-name">{formData.name}</h1>
+            <span className="profile-role-tag">{formData.role}</span>
+          </div>
           
-          <div className="profile-info-text">
-            <h1 className="profile-name text-gradient">{formData.name}</h1>
-            <p className="profile-role">{formData.role}</p>
-            <div className="profile-badges">
-              <span className="badge badge-purple">Pro Member</span>
-              <span className="badge badge-blue">Level 5</span>
+          <div className="profile-stats-row">
+            <div className="stat-item">
+              <span className="stat-value">{stats.interviews}</span>
+              <span className="stat-label">SESSIONS</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">{stats.avgScore}</span>
+              <span className="stat-label">AVG SCORE</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-value">PRO</span>
+              <span className="stat-label">PLAN</span>
             </div>
           </div>
-
-          <div className="header-actions">
-            {!isEditing ? (
-              <Button variant="secondary" onClick={() => setIsEditing(true)} icon={<Edit2 size={16}/>}>
-                Edit Profile
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                <Button variant="ghost" onClick={() => setIsEditing(false)} icon={<X size={16}/>}>
-                  Cancel
-                </Button>
-                <Button variant="primary" onClick={handleSave} isLoading={loading} icon={<Save size={16}/>}>
-                  Save
-                </Button>
-              </div>
-            )}
-          </div>
         </div>
-      </Card>
 
-      <div className="profile-grid">
-        {/* STATS COLUMN */}
-        <div className="profile-col-left">
-          <Card title="Performance Stats">
-            <div className="stat-row">
-              <div className="stat-icon-wrapper purple">
-                <Briefcase size={20} />
-              </div>
-              <div className="stat-details">
-                <span className="stat-value">{stats.interviews}</span>
-                <span className="stat-label">Interviews Completed</span>
-              </div>
+        <div className="profile-actions-section">
+          {!isEditing ? (
+            <Button variant="secondary" onClick={() => setIsEditing(true)} className="btn-editorial">
+              EDIT PROFILE
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <button className="btn-text-cancel" onClick={() => setIsEditing(false)}>CANCEL</button>
+              <Button variant="primary" onClick={handleSave} isLoading={loading} className="btn-editorial primary">
+                SAVE CHANGES
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Content Grid */}
+      <div className="profile-content-grid">
+        
+        {/* Left: Bio & Details */}
+        <div className="profile-details-col">
+          <Card className="profile-card-editorial">
+            <div className="card-header-minimal">
+              <h3>PERSONAL DETAILS</h3>
             </div>
             
-            <div className="stat-divider"></div>
-
-            <div className="stat-row">
-              <div className="stat-icon-wrapper blue">
-                <Award size={20} />
-              </div>
-              <div className="stat-details">
-                <span className="stat-value">{stats.avgScore}%</span>
-                <span className="stat-label">Average Score</span>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* DETAILS FORM COLUMN */}
-        <div className="profile-col-right">
-          <Card title="Personal Information">
-            <form className="profile-form">
-              <div className="form-grid-2">
-                <InputField 
-                  label="Full Name"
+            <form className="details-form">
+              <div className="form-group-editorial">
+                <label>FULL NAME</label>
+                <input 
+                  className={`input-editorial ${isEditing ? '' : 'readonly'}`}
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  icon={<User size={18} />}
                   disabled={!isEditing}
                 />
-                <InputField 
-                  label="Email Address"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  icon={<Mail size={18} />}
-                  disabled={!isEditing} // Usually email is locked
+              </div>
+
+              <div className="form-group-editorial">
+                <label>EMAIL</label>
+                <input 
+                  className="input-editorial readonly" 
+                  value={formData.email} 
+                  disabled 
                 />
               </div>
 
-              <div className="input-wrapper">
-                <label className="input-label">Target Role</label>
-                <div className="input-container">
-                  <span className="input-icon"><Briefcase size={18}/></span>
-                  <input 
-                    className="neon-input"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                </div>
+              <div className="form-group-editorial">
+                <label>TARGET ROLE</label>
+                <input 
+                  className={`input-editorial ${isEditing ? '' : 'readonly'}`}
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
               </div>
 
-              <div className="input-wrapper">
-                <label className="input-label">Bio</label>
+              <div className="form-group-editorial">
+                <label>BIO</label>
                 <textarea 
-                  className="neon-input textarea-input"
+                  className={`input-editorial textarea ${isEditing ? '' : 'readonly'}`}
                   name="bio"
                   rows="4"
                   value={formData.bio}
@@ -181,6 +162,32 @@ const Profile = () => {
             </form>
           </Card>
         </div>
+
+        {/* Right: Achievements / Badges */}
+        <div className="profile-badges-col">
+          <Card className="profile-card-editorial">
+            <div className="card-header-minimal">
+              <h3>ACHIEVEMENTS</h3>
+            </div>
+            <div className="badges-list">
+              <div className="badge-item">
+                <Award size={20} />
+                <div>
+                  <h4>EARLY ADOPTER</h4>
+                  <p>Joined Prep AI Alpha</p>
+                </div>
+              </div>
+              <div className="badge-item inactive">
+                <Award size={20} />
+                <div>
+                  <h4>INTERVIEW MASTER</h4>
+                  <p>Score 90+ in 5 sessions</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
       </div>
     </div>
   );

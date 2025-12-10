@@ -1,138 +1,103 @@
-.session-lobby-container {
+/* =========================================
+   INTERVIEW SESSION.CSS
+   Studio Monitor Look
+   ========================================= */
+
+.session-root {
+  min-height: 80vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  min-height: 85vh;
 }
 
-.lobby-content {
-  width: 100%;
-  max-width: 900px;
-  text-align: center;
-}
-
-.lobby-header {
+.session-header {
   margin-bottom: 3rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 1rem;
 }
 
-.lobby-header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Grid Layout */
-.check-grid {
+.session-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
 }
 
-@media (min-width: 768px) {
-  .check-grid {
-    grid-template-columns: 1.2fr 0.8fr;
-    text-align: left;
-  }
+@media (max-width: 900px) {
+  .session-grid { grid-template-columns: 1fr; }
 }
 
-/* Video Preview */
-.video-preview-wrapper {
-  position: relative;
-  aspect-ratio: 16/9;
+/* Video Frame */
+.video-frame {
   background: black;
-  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.2);
+  aspect-ratio: 16/9;
+  position: relative;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--glass-border);
 }
 
-.mirror-video {
+.mirror-feed {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* Mirror effect */
+  transform: scaleX(-1);
 }
 
-.status-badge {
+.video-overlay {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1rem; left: 1rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(4px);
   padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: white;
 }
 
-.status-badge .success {
-  color: #2ed573;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+.status-indicator.ready { color: #10b981; border-color: #10b981; }
+.status-indicator.error { color: #ef4444; border-color: #ef4444; }
 
-.status-badge .pending {
-  color: #ffa502;
-}
-
-.permission-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: #ff4757;
-}
-
-/* Audio Check Section */
-.audio-check-card {
+/* Controls */
+.session-controls {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2rem;
 }
 
-.instruction-step {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
+.check-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
 }
 
-.step-icon {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px;
-  border-radius: 12px;
-  color: var(--primary);
+.check-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.8rem;
+  color: #aaa;
+  letter-spacing: 1px;
 }
 
-.step-content h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-}
-
-.step-content p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-/* Audio Meter */
-.audio-meter-container {
-  margin-top: 0.8rem;
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+.audio-meter-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 2rem;
   overflow: hidden;
 }
 
-.audio-level-fill {
+.meter-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), #2ed573);
-  transition: width 0.1s ease-out;
+  width: 60%;
+  background: #10b981;
+  animation: pulseMeter 0.5s infinite alternate;
 }
 
-.action-footer {
-  margin-top: auto;
+@keyframes pulseMeter {
+  0% { width: 40%; }
+  100% { width: 70%; }
 }

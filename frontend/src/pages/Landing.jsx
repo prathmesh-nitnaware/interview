@@ -1,107 +1,129 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mic, FileText, BarChart2, CheckCircle, ArrowRight } from 'lucide-react';
-import Navbar from '../components/Navbar'; // Use the public navbar we made earlier
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import '../App.css';
-import './Landing.css'; // Specific animations for this page
+import { ArrowRight, Terminal, Mic, FileText } from 'lucide-react';
+import Navbar from '../components/Navbar'; 
+import '../styles/theme.css'; // Keep global theme vars
+import './Landing.css';       // Import the dedicated CSS
 
 const Landing = () => {
   const [text, setText] = useState('');
-  const fullText = "Master Your Next Interview with AI.";
+  const fullText = "MASTER YOUR CAREER with Prep. AI"; // The text to type out
   
-  // Typewriter Effect Logic
+  // Minimalist Typewriter Logic
   useEffect(() => {
     let index = 0;
-    const interval = setInterval(() => {
-      setText(fullText.slice(0, index));
-      index++;
-      if (index > fullText.length) clearInterval(interval);
-    }, 100);
-    return () => clearInterval(interval);
+    const speed = 100; // Typing speed in ms
+
+    const typeWriter = () => {
+      if (index <= fullText.length) {
+        setText(fullText.slice(0, index));
+        index++;
+        setTimeout(typeWriter, speed);
+      }
+    };
+
+    typeWriter();
   }, []);
 
   return (
-    <div className="landing-container">
-      <Navbar />
+    <div className="landing-root">
+      
+      {/* Navbar */}
+      <nav className="landing-nav">
+        <span className="nav-brand">PREP AI.</span>
+        <div className="nav-links">
+          <Link to="/login" className="nav-link-login">LOG IN</Link>
+          <Link to="/signup" className="nav-link-signup">GET STARTED</Link>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="hero-section">
-        {/* Animated Background Blobs */}
-        <div className="blob blob-purple"></div>
-        <div className="blob blob-blue"></div>
-
-        <div className="hero-content">
-          <div className="badge-pill animate-fade-in">
-            <span className="dot"></span> AI-Powered Career Coach
-          </div>
+      <section className="page-container hero-section">
+        <div className="fade-in-up">
+          <span className="text-editorial-sub">The Future of Interview Prep</span>
           
-          <h1 className="hero-title">
-            <span className="text-gradient">{text}</span>
-            <span className="cursor-blink">|</span>
+          {/* TYPEWRITER EFFECT HEADLINE */}
+          <h1 className="text-editorial-h1 hero-title">
+            <span className="typing-text">{text}</span>
           </h1>
           
-          <p className="hero-subtitle animate-fade-in-up delay-100">
-            Real-time voice analysis, posture tracking, and ATS resume scoring. 
-            Get hired faster with the world's most advanced mock interview platform.
+          <p className="text-muted hero-desc fade-in-up delay-200">
+            Real-time voice analysis, ATS resume scoring, and algorithmic challenges. 
+            Designed for professionals who demand perfection.
           </p>
-
-          <div className="hero-actions animate-fade-in-up delay-200">
-            <Link to="/signup">
-              <Button className="btn-lg glow-button">
-                Start Free Trial <ArrowRight size={20} />
-              </Button>
+          
+          <div className="hero-actions fade-in-up delay-300">
+            <Link to="/signup" className="btn-editorial primary">
+              Start Free Trial <ArrowRight size={18} />
             </Link>
-            <Link to="/login">
-              <button className="btn-ghost-rounded">Live Demo</button>
+            <Link to="/login" className="btn-editorial">
+              Live Demo
             </Link>
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="features-section page-container">
-        <h2 className="section-heading text-center">Everything you need to <span className="text-gradient">succeed</span></h2>
-        
+      <section className="page-container features-section">
+        <div className="features-header fade-in-up delay-500">
+          <h2 className="features-title">CORE MODULES</h2>
+          <span className="text-editorial-sub">V 2.0</span>
+        </div>
+
         <div className="features-grid">
-          <Card className="feature-card">
-            <div className="feature-icon-wrapper purple">
-              <Mic size={32} />
+          
+          {/* Feature 01 */}
+          <div className="card-editorial fade-in-up delay-200">
+            <div className="feature-card-header">
+              <Mic size={32} color="white" strokeWidth={1.5} />
+              <span className="text-mono">01</span>
             </div>
-            <h3>Voice Analysis</h3>
-            <p>Our AI analyzes your tone, pace, and clarity in real-time to ensure you sound confident.</p>
-          </Card>
+            <h3 className="feature-heading">Voice Analysis</h3>
+            <p className="text-muted feature-desc">
+              AI-driven feedback on your tone, pacing, and confidence levels during mock sessions.
+            </p>
+          </div>
 
-          <Card className="feature-card">
-            <div className="feature-icon-wrapper blue">
-              <FileText size={32} />
+          {/* Feature 02 */}
+          <div className="card-editorial fade-in-up delay-300">
+            <div className="feature-card-header">
+              <FileText size={32} color="white" strokeWidth={1.5} />
+              <span className="text-mono">02</span>
             </div>
-            <h3>Resume ATS Scorer</h3>
-            <p>Upload your resume and get instant feedback on missing keywords and formatting issues.</p>
-          </Card>
+            <h3 className="feature-heading">ATS Scorer</h3>
+            <p className="text-muted feature-desc">
+              Upload your PDF/DOCX. Get an instant score based on industry-standard parsing algorithms.
+            </p>
+          </div>
 
-          <Card className="feature-card">
-            <div className="feature-icon-wrapper pink">
-              <BarChart2 size={32} />
+          {/* Feature 03 */}
+          <div className="card-editorial fade-in-up delay-500">
+            <div className="feature-card-header">
+              <Terminal size={32} color="white" strokeWidth={1.5} />
+              <span className="text-mono">03</span>
             </div>
-            <h3>Detailed Reports</h3>
-            <p>Get a comprehensive scorecard after every session highlighting your strengths and weaknesses.</p>
-          </Card>
+            <h3 className="feature-heading">Coding Dojo</h3>
+            <p className="text-muted feature-desc">
+              Practice DSA and System Design problems in a distraction-free, integrated environment.
+            </p>
+          </div>
+
         </div>
       </section>
 
-      {/* Trust/Social Proof */}
+      {/* Footer / Trust Section */}
       <section className="trust-section">
-        <p>TRUSTED BY CANDIDATES FROM</p>
-        <div className="logos-row opacity-50">
-          <span>GOOGLE</span>
-          <span>AMAZON</span>
-          <span>MICROSOFT</span>
-          <span>TESLA</span>
+        <p className="text-editorial-sub trust-label">Trusted by candidates from</p>
+        <div className="trust-logos">
+          <span className="trust-logo-text">GOOGLE</span>
+          <span className="trust-logo-text">AMAZON</span>
+          <span className="trust-logo-text">META</span>
+          <span className="trust-logo-text">NETFLIX</span>
         </div>
       </section>
 
+      {/* Noise Overlay */}
+      <div className="noise-bg"></div>
     </div>
   );
 };

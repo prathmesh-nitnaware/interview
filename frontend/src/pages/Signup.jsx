@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Lock, UserPlus, AlertCircle } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import { User, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
-import '../App.css';
-import './Signup.css'; // We will create this next
+import '../styles/theme.css'; // Global Theme
+import './Signup.css'; // Specific Styles
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -28,119 +27,115 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // 1. Basic Validation
     if (!formData.name || !formData.email || !formData.password) {
       setError("All fields are required.");
       return;
     }
-    
-    // 2. Password Match Check
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
-    // 3. Password Strength (Optional simple check)
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    // 4. Call Auth Context
     const result = await signup(formData.name, formData.email, formData.password);
-    
     if (!result.success) {
       setError(result.message || "Failed to create account.");
     }
-    // Note: Success redirect is handled inside AuthContext or you can do it here
   };
 
   return (
-    <div className="page-container signup-container">
-      <Navbar />
-
-      <div className="signup-content animate-fade-in-up">
-        <Card className="signup-card">
-          
-          <div className="signup-header">
-            <div className="icon-glow-wrapper">
-              <UserPlus size={32} className="text-secondary" />
-            </div>
-            <h2 className="text-gradient">Create Account</h2>
-            <p className="text-muted">Start your journey to interview mastery.</p>
+    <div className="signup-root">
+      <div className="signup-split">
+        
+        {/* Left Side: Visual/Brand */}
+        <div className="signup-visual">
+          <div className="visual-content">
+            <span className="brand-tag">PREP AI.</span>
+            <h1 className="visual-heading">Join the <br/> Elite.</h1>
+            <p className="visual-text">
+              Master your interview skills with AI-driven analysis. 
+              Join thousands of professionals securing top-tier roles.
+            </p>
           </div>
-
-          {error && (
-            <div className="error-alert">
-              <AlertCircle size={18} />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <InputField
-              label="Full Name"
-              name="name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              icon={<User size={18} />}
-              required
-            />
-
-            <InputField
-              type="email"
-              label="Email Address"
-              name="email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              icon={<Mail size={18} />}
-              required
-            />
-
-            <InputField
-              type="password"
-              label="Password"
-              name="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              icon={<Lock size={18} />}
-              required
-            />
-
-            <InputField
-              type="password"
-              label="Confirm Password"
-              name="confirmPassword"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              icon={<Lock size={18} />}
-              required
-            />
-
-            <div className="terms-text">
-              By signing up, you agree to our <span className="highlight">Terms</span> & <span className="highlight">Privacy Policy</span>.
-            </div>
-
-            <Button 
-              type="submit" 
-              variant="primary" 
-              className="w-full mt-2" 
-              isLoading={loading}
-            >
-              Create Account
-            </Button>
-          </form>
-
-          <div className="signup-footer">
-            <p>Already have an account? <Link to="/login" className="text-gradient link-bold">Log In</Link></p>
+          <div className="visual-footer">
+            <span>V 2.0</span>
+            <span>© 2025</span>
           </div>
+        </div>
 
-        </Card>
+        {/* Right Side: Form */}
+        <div className="signup-form-container">
+          <Card className="signup-card-editorial">
+            <div className="form-header">
+              <h2>Create Account</h2>
+              <p>Start your journey today.</p>
+            </div>
+
+            {error && (
+              <div className="error-banner">
+                <AlertCircle size={16} /> <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+              <InputField
+                label="FULL NAME"
+                name="name"
+                placeholder="JOHN DOE"
+                value={formData.name}
+                onChange={handleChange}
+                icon={<User size={16} />}
+                required
+              />
+
+              <InputField
+                type="email"
+                label="EMAIL ADDRESS"
+                name="email"
+                placeholder="YOU@EXAMPLE.COM"
+                value={formData.email}
+                onChange={handleChange}
+                icon={<Mail size={16} />}
+                required
+              />
+
+              <div className="password-grid">
+                <InputField
+                  type="password"
+                  label="PASSWORD"
+                  name="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  icon={<Lock size={16} />}
+                  required
+                />
+                <InputField
+                  type="password"
+                  label="CONFIRM"
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  icon={<Lock size={16} />}
+                  required
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                variant="primary" 
+                className="w-full btn-editorial primary mt-6" 
+                isLoading={loading}
+              >
+                Sign Up <ArrowRight size={16} />
+              </Button>
+            </form>
+
+            <div className="form-footer">
+              <p>Already a member? <Link to="/login" className="link-highlight">Log In</Link></p>
+            </div>
+          </Card>
+        </div>
+
       </div>
     </div>
   );

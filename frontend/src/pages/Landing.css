@@ -1,229 +1,243 @@
-/* Container */
-.landing-container {
+/* =========================================
+   LANDING.CSS
+   Minimalist Editorial Design & Animations
+   ========================================= */
+
+/* --- Layout & Structure --- */
+.landing-root {
+  background: #0a0a0a;
   min-height: 100vh;
-  background-color: var(--bg-dark);
-  overflow-x: hidden;
+  color: white;
   position: relative;
+  overflow-x: hidden;
+}
+
+/* Navbar */
+.landing-nav {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 10;
+}
+
+.nav-brand {
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link-login {
+  color: #888;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link-login:hover {
+  color: white;
+}
+
+.nav-link-signup {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.nav-link-signup:hover {
+  opacity: 0.8;
 }
 
 /* Hero Section */
 .hero-section {
-  min-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  padding-top: 10rem;
+  padding-bottom: 8rem;
   text-align: center;
   position: relative;
-  padding: 0 1rem;
+  z-index: 5;
 }
 
-.hero-content {
-  z-index: 10;
-  max-width: 900px;
-}
-
-/* Animated Blobs */
-.blob {
-  position: absolute;
-  filter: blur(80px);
-  z-index: 1;
-  opacity: 0.4;
-  animation: float 10s infinite alternate;
-}
-
-.blob-purple {
-  top: 10%;
-  left: 20%;
-  width: 400px;
-  height: 400px;
-  background: var(--primary);
-  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-}
-
-.blob-blue {
-  bottom: 20%;
-  right: 10%;
-  width: 500px;
-  height: 500px;
-  background: var(--secondary);
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  animation-delay: -5s;
-}
-
-/* Typography */
 .hero-title {
-  font-size: 3.5rem;
-  margin: 1.5rem 0;
-  font-weight: 800;
-  line-height: 1.1;
+  font-size: clamp(2rem, 8vw, 6rem);
+  margin: 1rem 0;
+  min-height: 1.2em; /* Prevents layout shift while typing */
 }
 
-@media (min-width: 768px) {
-  .hero-title {
-    font-size: 5rem;
-  }
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  color: var(--text-muted);
-  max-width: 700px;
-  margin: 0 auto 2.5rem;
+.hero-desc {
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  font-size: 1.1rem;
   line-height: 1.6;
-}
-
-.cursor-blink {
-  color: var(--secondary);
-  animation: blink 1s step-end infinite;
-}
-
-/* Badge */
-.badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 30px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.03);
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #2ed573;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #2ed573;
-}
-
-/* Buttons */
-.btn-lg {
-  padding: 16px 32px;
-  font-size: 1.1rem;
-}
-
-.glow-button {
-  background: linear-gradient(90deg, var(--primary), #5b32b5);
-  box-shadow: 0 0 20px rgba(124, 77, 240, 0.4);
-}
-
-.btn-ghost-rounded {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: white;
-  padding: 16px 32px;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-ghost-rounded:hover {
-  border-color: white;
-  background: rgba(255,255,255,0.05);
 }
 
 .hero-actions {
   display: flex;
-  gap: 1.5rem;
   justify-content: center;
-  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
-/* Feature Grid */
+/* Features Section */
 .features-section {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 6rem;
   position: relative;
-  z-index: 10;
+  z-index: 5;
+}
+
+.features-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 4rem;
+}
+
+.features-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin: 0;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
-  margin-top: 3rem;
 }
 
-.feature-card {
-  text-align: center;
-  padding: 2rem;
-  background: rgba(10, 11, 30, 0.4); /* Darker glass for contrast */
-}
-
-.feature-icon-wrapper {
-  width: 70px;
-  height: 70px;
-  border-radius: 20px;
+/* Feature Card Internals */
+.feature-card-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  background: rgba(255,255,255,0.05);
+  justify-content: space-between;
+  margin-bottom: 2rem;
 }
 
-.feature-icon-wrapper.purple { color: var(--primary); box-shadow: 0 0 15px rgba(124,77,240,0.2); }
-.feature-icon-wrapper.blue { color: var(--secondary); box-shadow: 0 0 15px rgba(58,169,223,0.2); }
-.feature-icon-wrapper.pink { color: #ff4757; box-shadow: 0 0 15px rgba(255,71,87,0.2); }
-
-.feature-card h3 {
+.feature-heading {
   font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
-.feature-card p {
-  color: var(--text-muted);
-  line-height: 1.6;
+.feature-desc {
+  font-size: 0.9rem;
 }
 
-/* Trust Section */
+/* Footer / Trust Section */
 .trust-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 8rem;
+  padding: 4rem 2rem;
   text-align: center;
-  padding: 4rem 1rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  letter-spacing: 2px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+  z-index: 5;
 }
 
-.logos-row {
+.trust-label {
+  opacity: 0.5;
+  margin-bottom: 2rem;
+}
+
+.trust-logos {
   display: flex;
   justify-content: center;
   gap: 4rem;
-  margin-top: 2rem;
+  flex-wrap: wrap;
+  opacity: 0.3;
+}
+
+.trust-logo-text {
   font-size: 1.5rem;
   font-weight: 800;
-  color: rgba(255,255,255,0.2);
-  flex-wrap: wrap;
 }
 
-/* Animations */
-@keyframes float {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(20px, 20px) rotate(5deg); }
-  100% { transform: translate(-10px, 30px) rotate(-5deg); }
+/* --- ANIMATIONS & EFFECTS --- */
+
+/* 1. Typewriter Cursor */
+.typing-text {
+  display: inline-block;
+  position: relative;
 }
 
-@keyframes blink {
+.typing-text::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background-color: currentColor;
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: blinkCursor 1s step-end infinite;
+}
+
+@keyframes blinkCursor {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
 
+/* 2. Fade In Up */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out forwards;
-  opacity: 0; /* Start hidden */
-}
-
+/* Animation Delays */
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* 3. Noise Texture Background */
+.noise-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* 4. Button Hover Effect (Slide) */
+.btn-editorial {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-editorial::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: white;
+  z-index: -1;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-editorial:hover::before {
+  width: 100%;
+}
+
+.btn-editorial:hover {
+  color: black !important;
+}

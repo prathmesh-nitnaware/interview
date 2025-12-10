@@ -1,41 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  Target, 
-  Search, 
-  ArrowRight,
-  RefreshCw 
-} from 'lucide-react';
+import { Check, X, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
-import '../App.css';
-import './ResumeResult.css'; // We will create this next
+import '../styles/theme.css';
+import './ResumeResult.css';
 
 const ResumeResult = () => {
   const location = useLocation();
-  const [resumeId, setResumeId] = useState(location.state?.resume_id || null);
+  const [resumeId] = useState(location.state?.resume_id || null);
   const [jobRole, setJobRole] = useState(location.state?.job_role || '');
   
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
 
-  // If we came from Upload page with an ID but no results yet
   const handleScore = async (e) => {
     e?.preventDefault();
-    if (!jobRole) return alert("Please enter a job role to score against.");
+    if (!jobRole) return alert("Enter a target role.");
     
     setLoading(true);
     try {
       const data = await api.scoreResume(resumeId, jobRole);
       setResults(data);
     } catch (error) {
-      console.error("Scoring failed", error);
-      alert("Failed to analyze resume. Please try again.");
+      alert("Analysis failed.");
     } finally {
       setLoading(false);
     }
@@ -43,130 +33,116 @@ const ResumeResult = () => {
 
   if (!resumeId) {
     return (
-      <div className="page-container flex-center flex-col">
-        <h2 className="text-muted mb-4">No resume uploaded.</h2>
-        <Link to="/resume/upload">
-          <Button>Upload Resume</Button>
-        </Link>
+      <div className="result-empty page-container">
+        <h1>NO DATA FOUND</h1>
+        <Link to="/resume/upload" className="link-editorial">UPLOAD RESUME</Link>
       </div>
     );
   }
 
   return (
-    <div className="page-container result-container animate-fade-in">
+    <div className="result-root page-container">
       
-      {/* 1. INPUT SECTION (Visible if no results or re-scoring) */}
-      {!results && (
-        <Card className="score-setup-card">
-          <h1 className="text-gradient mb-2">Resume ATS Scanner</h1>
-          <p className="text-muted mb-6">Targeting a specific role? Let our AI match your keywords.</p>
-          
-          <form onSubmit={handleScore} className="score-form">
-            <InputField 
-              label="Target Job Title"
-              name="jobRole"
-              value={jobRole}
-              onChange={(e) => setJobRole(e.target.value)}
-              placeholder="e.g. Full Stack Developer"
-              icon={<Target size={18} />}
-            />
-            <Button type="submit" variant="primary" isLoading={loading} className="w-full">
-              Calculate ATS Score <Search size={18} className="ml-2" />
-            </Button>
-          </form>
-        </Card>
-      )}
+      {/* HEADER */}
+      <div className="result-header">
+        <span className="text-mono">03 // ANALYSIS RESULTS</span>
+        <h1 className="result-title">ATS AUDIT REPORT</h1>
+      </div>
 
-      {/* 2. LOADING STATE */}
-      {loading && !results && (
-        <div className="analysis-loader">
-          <div className="neon-scanner-bar"></div>
-          <p className="mt-4 text-gradient">Parsing keywords & metrics...</p>
+      {/* INPUT SECTION */}
+      {!results && (
+        <div className="result-setup">
+          <Card className="card-editorial">
+            <h3 className="section-title">TARGET PARAMETERS</h3>
+            <form onSubmit={handleScore} className="setup-form">
+              <InputField 
+                label="JOB TITLE"
+                name="jobRole"
+                value={jobRole}
+                onChange={(e) => setJobRole(e.target.value)}
+                placeholder="E.G. FULL STACK DEVELOPER"
+              />
+              <Button type="submit" variant="primary" isLoading={loading} className="btn-editorial primary w-full mt-4">
+                RUN DIAGNOSTIC
+              </Button>
+            </form>
+          </Card>
         </div>
       )}
 
-      {/* 3. RESULTS DASHBOARD */}
+      {/* LOADING */}
+      {loading && !results && (
+        <div className="loader-container">
+          <div className="loader-bar"></div>
+          <p className="text-mono">PROCESSING DOCUMENT STRUCTURE...</p>
+        </div>
+      )}
+
+      {/* RESULTS DISPLAY */}
       {results && (
-        <div className="results-grid animate-fade-in-up">
+        <div className="report-grid fade-in-up">
           
-          {/* Top Row: Score & Header */}
-          <div className="results-header">
-            <div className="header-text">
-              <h2>Analysis for <span className="text-primary">{jobRole}</span></h2>
-              <p className="text-muted">Based on your uploaded document</p>
+          {/* Main Score */}
+          <div className="score-section">
+            <div className="score-box">
+              <span className="score-label">MATCH SCORE</span>
+              <span className="score-huge">{results.score}</span>
+              <span className="score-total">/ 100</span>
             </div>
-            <Button variant="secondary" onClick={() => setResults(null)} icon={<RefreshCw size={16}/>}>
-              Scan New Role
-            </Button>
+            <div className="score-actions">
+              <Button variant="secondary" onClick={() => setResults(null)} className="btn-editorial">
+                <RefreshCw size={14} /> NEW SCAN
+              </Button>
+            </div>
           </div>
 
-          {/* Main Score Card */}
-          <Card className="score-card-main">
-            <div className="radial-score-large">
-              <svg viewBox="0 0 36 36">
-                <path className="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path 
-                  className="circle-fill" 
-                  strokeDasharray={`${results.score}, 100`} 
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
-                />
-              </svg>
-              <div className="score-value">
-                <span>{results.score}</span>
-                <small>/100</small>
+          {/* Details Grid */}
+          <div className="details-grid">
+            
+            {/* Missing Keywords */}
+            <Card className="card-editorial">
+              <h3 className="section-title">MISSING KEYWORDS</h3>
+              <div className="tags-container">
+                {results.missing_keywords?.map((kw, i) => (
+                  <span key={i} className="tag-editorial alert">{kw}</span>
+                )) || <span className="text-mono text-muted">NO CRITICAL GAPS DETECTED</span>}
               </div>
-            </div>
-            <div className="score-verdict">
-              <h3>{results.score >= 80 ? "Excellent Match" : results.score >= 60 ? "Good Potential" : "Needs Improvement"}</h3>
-              <p className="text-muted">Your resume includes {results.score}% of the required keywords and formatting standards.</p>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Missing Keywords */}
-          <Card title="Missing Keywords" className="keywords-card">
-            <div className="keywords-grid">
-              {results.missing_keywords?.map((kw, i) => (
-                <span key={i} className="keyword-chip missing">
-                  <AlertTriangle size={14} /> {kw}
-                </span>
-              ))}
-              {(!results.missing_keywords || results.missing_keywords.length === 0) && (
-                <p className="text-success">All key terms found! 🎉</p>
-              )}
-            </div>
-          </Card>
-
-          {/* Feedback Columns */}
-          <div className="feedback-split">
-            <Card title="Strengths">
-              <ul className="feedback-list">
+            {/* Strengths */}
+            <Card className="card-editorial">
+              <h3 className="section-title">DETECTED STRENGTHS</h3>
+              <ul className="list-editorial success">
                 {results.strengths?.map((s, i) => (
-                  <li key={i}><CheckCircle size={16} className="text-success" /> {s}</li>
+                  <li key={i}><Check size={16} /> {s}</li>
                 ))}
               </ul>
             </Card>
 
-            <Card title="Fix These Issues">
-              <ul className="feedback-list">
+            {/* Weaknesses */}
+            <Card className="card-editorial">
+              <h3 className="section-title">CRITICAL ISSUES</h3>
+              <ul className="list-editorial danger">
                 {results.weaknesses?.map((w, i) => (
-                  <li key={i}><XCircle size={16} className="text-danger" /> {w}</li>
+                  <li key={i}><X size={16} /> {w}</li>
                 ))}
               </ul>
             </Card>
+
+            {/* Suggestions */}
+            <Card className="card-editorial full-width">
+              <h3 className="section-title">OPTIMIZATION STRATEGY</h3>
+              <div className="suggestions-list">
+                {results.suggestions?.map((s, i) => (
+                  <div key={i} className="suggestion-row">
+                    <ArrowRight size={16} />
+                    <span>{s}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
           </div>
-
-          {/* Action Plan */}
-          <Card title="AI Suggestions" className="suggestions-card">
-            <div className="suggestions-list">
-              {results.suggestions?.map((s, i) => (
-                <div key={i} className="suggestion-item">
-                  <ArrowRight size={16} className="text-primary" />
-                  <span>{s}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
         </div>
       )}
     </div>

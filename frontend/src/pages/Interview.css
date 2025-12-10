@@ -1,157 +1,96 @@
-/* Container: Split layout for desktop */
-.interview-setup-container {
+/* =========================================
+   INTERVIEW.CSS
+   Configuration Layout
+   ========================================= */
+
+.interview-root {
   display: flex;
-  flex-direction: column;
-  gap: 3rem;
   align-items: center;
   min-height: 80vh;
 }
 
-/* Responsive Split */
-@media (min-width: 900px) {
-  .interview-setup-container {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 5rem;
-  }
-
-  .setup-info {
-    flex: 1;
-    text-align: left;
-    max-width: 500px;
-  }
-
-  .setup-card {
-    flex: 1;
-    max-width: 500px;
-  }
-}
-
-/* Info Section Styling */
-.hero-title {
-  font-size: 3rem;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-  font-weight: 800;
-}
-
-.hero-subtitle {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.feature-list {
+.interview-split {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 500;
-}
-
-.feature-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(124, 77, 240, 0.15);
-  color: var(--primary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Form Styling */
-.form-title {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  text-align: center;
-  color: white;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  display: block;
-  color: var(--text-muted);
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
-}
-
-/* Custom "Chips" for selection */
-.options-grid {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.option-chip {
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.option-chip:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.option-chip.active {
-  background: rgba(124, 77, 240, 0.2);
-  border-color: var(--primary);
-  color: white;
-  box-shadow: 0 0 10px rgba(124, 77, 240, 0.2);
-}
-
-.form-actions {
-  margin-top: 2rem;
-}
-
-.w-full {
   width: 100%;
+  gap: 4rem;
 }
 
-/* Page Animations */
-.animate-slide-in-left {
-  animation: slideInLeft 0.6s ease-out;
+@media (max-width: 900px) {
+  .interview-split { flex-direction: column; }
 }
 
-.animate-slide-in-right {
-  animation: slideInRight 0.6s ease-out;
+/* Meta Side */
+.interview-meta {
+  flex: 1;
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.meta-title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -2px;
+  margin-bottom: 1.5rem;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.meta-desc {
+  font-size: 1.1rem;
+  color: #888;
+  line-height: 1.6;
+  max-width: 400px;
 }
+
+/* Form Side */
+.interview-form-wrapper {
+  flex: 1.2;
+}
+
+.group-editorial {
+  margin-bottom: 2rem;
+}
+
+.label-editorial {
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  letter-spacing: 1px;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.chip-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #888;
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+.chip-btn:hover {
+  border-color: white;
+  color: white;
+}
+
+.chip-btn.active {
+  background: white;
+  color: black;
+  border-color: white;
+  font-weight: 600;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.mt-6 { margin-top: 2rem; }

@@ -1,152 +1,134 @@
 /* =========================================
    THEME.CSS
-   Visual effects, animations, and specific
-   neon/cyberpunk utility classes.
+   Editorial / Monochrome Design System
    ========================================= */
 
-/* -----------------------------------------
-   1. NEON TEXT UTILITIES
-   ----------------------------------------- */
-.text-neon-purple {
-  color: var(--primary);
-  text-shadow: 0 0 10px rgba(124, 77, 240, 0.5);
-}
-
-.text-neon-blue {
-  color: var(--secondary);
-  text-shadow: 0 0 10px rgba(58, 169, 223, 0.5);
-}
-
-.text-neon-red {
-  color: var(--accent);
-  text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+:root {
+  --font-main: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace; /* Optional tech feel */
+  
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* -----------------------------------------
-   2. BACKGROUND PATTERNS
+   1. TYPOGRAPHY UTILITIES
    ----------------------------------------- */
-/* Grid Pattern Overlay */
-.bg-grid-pattern {
-  background-size: 50px 50px;
-  background-image: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.03) 1px,
-      transparent 1px
-    ),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+.text-editorial-h1 {
+  font-family: var(--font-main);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  line-height: 0.9;
+  color: #ffffff;
 }
 
-/* Dot Pattern */
-.bg-dot-pattern {
-  background-image: radial-gradient(
-    rgba(255, 255, 255, 0.1) 1px,
-    transparent 1px
-  );
-  background-size: 20px 20px;
+.text-editorial-sub {
+  font-family: var(--font-main);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.text-mono {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: #666;
 }
 
 /* -----------------------------------------
-   3. GLASS VARIANTS
+   2. BUTTON VARIANTS
    ----------------------------------------- */
-.glass-heavy {
-  background: rgba(10, 11, 30, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+.btn-editorial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 32px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: white;
+  transition: all 0.3s var(--ease-out-expo);
+  cursor: pointer;
+  border-radius: 2px; /* Minimal radius */
+}
+
+.btn-editorial:hover {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.btn-editorial.primary {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.btn-editorial.primary:hover {
+  background: #e0e0e0;
+}
+
+/* -----------------------------------------
+   3. CARD VARIANTS
+   ----------------------------------------- */
+.card-editorial {
+  background: #0f0f0f;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.glass-light {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* -----------------------------------------
-   4. ANIMATION UTILITIES
-   ----------------------------------------- */
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-fast {
-  animation: pulse-glow 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-spin-slow {
-  animation: spin 12s linear infinite;
-}
-
-/* Keyframes */
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse-soft {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* -----------------------------------------
-   5. COMPONENT-SPECIFIC THEMES
-   ----------------------------------------- */
-
-/* Custom Scrollbar for specific containers */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary) var(--bg-dark);
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--primary);
-  border-radius: 20px;
-}
-
-/* Avatar Glow Rings */
-.avatar-glow {
+  padding: 2.5rem;
+  transition: transform 0.4s var(--ease-out-expo), border-color 0.3s;
   position: relative;
+  overflow: hidden;
 }
 
-.avatar-glow::after {
+.card-editorial:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+}
+
+/* Subtle inner shine on hover */
+.card-editorial::after {
   content: "";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, var(--primary), var(--secondary));
-  z-index: -1;
-  animation: spin 4s linear infinite;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
 }
+
+.card-editorial:hover::after {
+  opacity: 1;
+}
+
+/* -----------------------------------------
+   4. ANIMATIONS & EFFECTS
+   ----------------------------------------- */
+.noise-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s var(--ease-out-expo) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }

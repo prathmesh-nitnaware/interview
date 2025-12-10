@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
-import '../App.css';
-import './Login.css'; // We will create this next
+import '../styles/theme.css';
+import './Login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -16,7 +15,6 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect to where they came from, or dashboard by default
   const from = location.state?.from?.pathname || "/dashboard";
 
   const handleChange = (e) => {
@@ -30,79 +28,78 @@ const Login = () => {
       setError("Please fill in all fields");
       return;
     }
-
     const result = await login(formData.email, formData.password);
-    
     if (result.success) {
       navigate(from, { replace: true });
     } else {
-      setError(result.message || "Invalid email or password");
+      setError(result.message || "Invalid credentials");
     }
   };
 
   return (
-    <div className="page-container login-container">
-      {/* Show Public Navbar on Login Page */}
-      <Navbar /> 
+    <div className="login-root">
+      
+      {/* Background Element */}
+      <div className="login-bg-text">LOGIN</div>
 
-      <div className="login-content animate-fade-in-up">
-        <Card className="login-card">
+      <div className="login-container">
+        <Card className="login-card-editorial">
+          
           <div className="login-header">
-            <div className="icon-glow-wrapper">
-              <LogIn size={32} className="text-primary" />
-            </div>
-            <h2 className="text-gradient">Welcome Back</h2>
-            <p className="text-muted">Access your personal AI career coach.</p>
+            <span className="brand-small">PREP AI.</span>
+            <h1>Welcome Back</h1>
+            <p>Access your dashboard</p>
           </div>
 
           {error && (
-            <div className="error-alert">
-              <AlertCircle size={18} />
-              <span>{error}</span>
+            <div className="error-banner">
+              <AlertCircle size={16} /> <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit}>
             <InputField
               type="email"
+              label="EMAIL"
               name="email"
-              placeholder="Enter your email"
+              placeholder="YOU@EXAMPLE.COM"
               value={formData.email}
               onChange={handleChange}
-              icon={<Mail size={18} />}
+              icon={<Mail size={16} />}
               required
             />
             
             <InputField
               type="password"
+              label="PASSWORD"
               name="password"
-              placeholder="Enter your password"
+              placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
-              icon={<Lock size={18} />}
+              icon={<Lock size={16} />}
               required
             />
 
             <div className="form-options">
-              <label className="checkbox-label">
+              <label className="checkbox-editorial">
                 <input type="checkbox" /> 
                 <span>Remember me</span>
               </label>
-              <Link to="/forgot-password" class="link-sm">Forgot Password?</Link>
+              <Link to="/forgot-password" class="link-simple">Forgot Password?</Link>
             </div>
 
             <Button 
               type="submit" 
               variant="primary" 
-              className="w-full mt-4" 
+              className="w-full btn-editorial primary mt-6" 
               isLoading={loading}
             >
-              Sign In
+              Sign In <ArrowRight size={16} />
             </Button>
           </form>
 
           <div className="login-footer">
-            <p>Don't have an account? <Link to="/signup" className="text-gradient link-bold">Sign Up</Link></p>
+            <p>New here? <Link to="/signup" className="link-highlight">Create an account</Link></p>
           </div>
         </Card>
       </div>

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { FileText, ArrowRight, ShieldCheck, Cpu } from 'lucide-react';
+import { FileText, ArrowRight, Shield, UploadCloud } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import FileUpload from '../components/FileUpload';
-import '../App.css';
-import './ResumeUpload.css'; // Created in step 2
+import '../styles/theme.css';
+import './ResumeUpload.css';
 
 const ResumeUpload = () => {
   const navigate = useNavigate();
@@ -21,103 +21,95 @@ const ResumeUpload = () => {
 
   const handleUpload = async () => {
     if (!file) {
-      setError("Please select a resume file first.");
+      setError("Please select a file.");
       return;
     }
 
     setLoading(true);
     try {
-      // 1. Upload File to Backend
       const data = await api.uploadResume(file);
-      
-      // 2. Redirect to Result Page with the returned Resume ID
-      // Passing state via router avoids putting ID in URL immediately
+      // Redirect to Result Page
       navigate('/resume/result', { 
         state: { 
           resume_id: data.resume_id,
           raw_text: data.raw_text 
         } 
       });
-
     } catch (err) {
-      console.error("Upload Error:", err);
-      setError("Failed to process resume. Please try a different file.");
+      console.error(err);
+      setError("Analysis failed. Please try another file.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="page-container resume-upload-container">
+    <div className="resume-root page-container">
       
-      {/* Hero Section */}
-      <div className="upload-hero animate-fade-in">
-        <div className="icon-badge">
-          <Cpu size={20} /> AI-Powered ATS
-        </div>
-        <h1 className="text-gradient">Optimize Your Resume</h1>
-        <p className="text-muted">
-          Upload your CV to see how it scores against industry standards. 
-          Our AI checks for keywords, formatting, and impact metrics.
+      {/* Header Area */}
+      <div className="resume-header">
+        <h1 className="resume-title">ATS OPTIMIZER</h1>
+        <p className="resume-subtitle">
+          Upload your CV to unlock AI-driven insights. Our engine parses formatting, keywords, and impact metrics.
         </p>
       </div>
 
-      {/* Main Upload Card */}
-      <Card className="upload-main-card animate-fade-in-up">
-        {loading ? (
-          <div className="scanning-ui">
-            <div className="scanner-line"></div>
-            <div className="doc-icon-large">
-              <FileText size={64} />
+      {/* Main Upload Area */}
+      <div className="resume-content">
+        <Card className="upload-card-editorial">
+          {loading ? (
+            <div className="scanning-state">
+              <div className="scan-line"></div>
+              <FileText size={48} className="scan-icon" />
+              <h3>ANALYZING STRUCTURE...</h3>
+              <p>Extracting key competencies</p>
             </div>
-            <h3 className="mt-6 text-white">Analyzing Document...</h3>
-            <p className="text-muted">Extracting skills, experience, and education.</p>
+          ) : (
+            <>
+              <div className="upload-section">
+                <FileUpload 
+                  onFileSelect={handleFileSelect} 
+                  label="DRAG PDF HERE"
+                  accept=".pdf,.docx,.txt"
+                />
+              </div>
+              
+              {error && <p className="error-text-editorial">{error}</p>}
+
+              <div className="upload-actions">
+                <Button 
+                  onClick={handleUpload} 
+                  disabled={!file} 
+                  className="btn-editorial primary w-full"
+                >
+                  START ANALYSIS <ArrowRight size={16} />
+                </Button>
+              </div>
+
+              <div className="privacy-badge">
+                <Shield size={12} />
+                <span>SECURE PARSING PROTOCOL ACTIVE</span>
+              </div>
+            </>
+          )}
+        </Card>
+
+        {/* Steps / Info */}
+        <div className="steps-row">
+          <div className="step-col">
+            <span className="step-num">01</span>
+            <h4>UPLOAD</h4>
+            <p>PDF or DOCX format supported.</p>
           </div>
-        ) : (
-          <>
-            <FileUpload 
-              onFileSelect={handleFileSelect} 
-              label="Drop your resume here"
-              accept=".pdf,.docx,.txt"
-            />
-            
-            {error && <p className="error-text">{error}</p>}
-
-            <div className="upload-actions">
-              <Button 
-                onClick={handleUpload} 
-                disabled={!file} 
-                variant="primary" 
-                className="w-full btn-lg"
-                icon={<ArrowRight size={20} />}
-              >
-                Scan Resume
-              </Button>
-            </div>
-
-            <div className="privacy-note">
-              <ShieldCheck size={14} />
-              <span>Your data is processed securely and not shared with third parties.</span>
-            </div>
-          </>
-        )}
-      </Card>
-      
-      {/* Info Steps */}
-      <div className="steps-grid">
-        <div className="step-item">
-          <span className="step-number">01</span>
-          <h4>Upload</h4>
-          <p>Support for PDF & DOCX formats.</p>
-        </div>
-        <div className="step-item">
-          <span className="step-number">02</span>
-          <h4>Analyze</h4>
-          <p>AI extracts key metrics & skills.</p>
-        </div>
-        <div className="step-item">
-          <span className="step-number">03</span>
-          <h4>Improve</h4>
-          <p>Get actionable feedback instantly.</p>
+          <div className="step-col">
+            <span className="step-num">02</span>
+            <h4>PARSE</h4>
+            <p>AI extracts skills & history.</p>
+          </div>
+          <div className="step-col">
+            <span className="step-num">03</span>
+            <h4>SCORE</h4>
+            <p>Get actionable feedback.</p>
+          </div>
         </div>
       </div>
 

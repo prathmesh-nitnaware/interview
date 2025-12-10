@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import { Briefcase, FileText, Check, AlertCircle, Sliders } from 'lucide-react';
+import { Briefcase, FileText, Check, AlertCircle, Sliders, ArrowRight } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
 import FileUpload from '../components/FileUpload';
-import '../App.css';
+import '../styles/theme.css';
 import './InterviewSetup.css';
 
 const InterviewSetup = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load existing resume text if available
+  // State
   const [resumeText, setResumeText] = useState(
     location.state?.raw_text || localStorage.getItem('last_resume_text') || ""
   );
-  
-  const [loading, setLoading] = useState(false);
   const [showUploader, setShowUploader] = useState(!resumeText); 
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     role: '',
@@ -28,6 +27,7 @@ const InterviewSetup = () => {
     questionCount: 5
   });
 
+  // Handlers
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -44,13 +44,13 @@ const InterviewSetup = () => {
       localStorage.setItem('last_resume_text', data.raw_text);
       setShowUploader(false);
     } catch (err) {
-      alert("Failed to read file. Please try again.");
+      alert("Failed to parse file.");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.role) return alert("Please specify a Target Job Role.");
+    if (!formData.role) return alert("Target Role is required.");
 
     setLoading(true);
     try {
@@ -61,141 +61,139 @@ const InterviewSetup = () => {
         parseInt(formData.questionCount),
         resumeText
       );
-      
       if (data?.session_id) {
         navigate(`/interview/session?session_id=${data.session_id}`);
       }
     } catch (error) {
       console.error(error);
-      alert("Error creating session.");
+      alert("Session initialization failed.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="page-container setup-wrapper">
+    <div className="setup-root page-container">
       
-      {/* 1. LEFT SIDE: Info (35% width) */}
-      <div className="setup-info">
-        <h1 className="setup-title">
-          Configure <br />
-          <span className="text-highlight">Session</span>
-        </h1>
-        <p className="setup-desc">
-          Customize your AI interviewer. Upload your resume for personalized questions, or start fresh with a specific job role.
-        </p>
+      {/* LEFT COLUMN: Narrative & Context */}
+      <div className="setup-visual">
+        <div className="visual-header">
+          <span className="text-mono">01 // CONFIGURATION</span>
+          <h1 className="visual-title">DESIGN YOUR <br/> SESSION</h1>
+        </div>
 
-        {/* Resume Context Card */}
-        <div className={`context-card ${resumeText ? 'loaded' : 'empty'}`}>
-          <div className="context-header">
-            {resumeText ? <Check size={18} /> : <AlertCircle size={18} />}
-            <span>{resumeText ? "Resume Context Active" : "No Resume Context"}</span>
+        <div className={`context-widget ${resumeText ? 'active' : ''}`}>
+          <div className="widget-icon">
+            {resumeText ? <Check size={20} /> : <AlertCircle size={20} />}
           </div>
-          <p className="context-detail">
-            {resumeText 
-              ? "The AI will ask questions based on your specific projects and skills." 
-              : "The AI will ask general questions based on the job role provided."}
-          </p>
-          {resumeText && (
-            <button className="link-btn" onClick={() => setShowUploader(true)}>
-              Replace Resume
-            </button>
-          )}
+          <div className="widget-content">
+            <h3 className="widget-title">{resumeText ? "CONTEXT ACTIVE" : "NO CONTEXT"}</h3>
+            <p className="widget-desc">
+              {resumeText 
+                ? "AI has analyzed your resume. Questions will be tailored to your specific project history." 
+                : "Standard mode. AI will ask general competency questions based on the role."}
+            </p>
+            {resumeText && (
+              <button className="widget-action" onClick={() => setShowUploader(true)}>
+                REPLACE RESUME
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* 2. RIGHT SIDE: The Form (65% width) */}
-      <Card className="setup-form-card">
-        <form onSubmit={handleSubmit}>
-          
-          {/* File Uploader (Conditional) */}
-          {showUploader && (
-            <div className="form-section fade-in">
-              <div className="label-row">
-                <FileText size={16} /> <label>Upload Resume (Optional)</label>
-              </div>
-              <div className="minimal-upload">
-                <FileUpload onFileSelect={handleResumeUpload} label="Drop PDF here" />
-              </div>
-            </div>
-          )}
-
-          {/* Role Input */}
-          <div className="form-section">
-            <div className="label-row">
-              <Briefcase size={16} /> <label>Target Role</label>
-            </div>
-            <InputField
-              name="role"
-              placeholder="e.g. Senior Product Designer"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Grid for Selects */}
-          <div className="form-grid">
-            <div className="form-section">
-              <label className="simple-label">Experience</label>
-              <div className="select-group">
-                {['0-2 years', '3-5 years', '5+ years'].map(exp => (
-                  <button
-                    key={exp}
-                    type="button"
-                    className={`select-btn ${formData.experience === exp ? 'selected' : ''}`}
-                    onClick={() => handleOptionSelect('experience', exp)}
-                  >
-                    {exp}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="form-section">
-              <label className="simple-label">Type</label>
-              <div className="select-group">
-                {['Technical', 'Behavioral', 'Mixed'].map(type => (
-                  <button
-                    key={type}
-                    type="button"
-                    className={`select-btn ${formData.type === type ? 'selected' : ''}`}
-                    onClick={() => handleOptionSelect('type', type)}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Slider */}
-          <div className="form-section">
-             <div className="label-row space-between">
-                <div className="flex gap-2 items-center">
-                  <Sliders size={16}/> <label>Questions</label>
+      {/* RIGHT COLUMN: Interactive Form */}
+      <div className="setup-form-wrapper">
+        <Card className="setup-card-editorial">
+          <form onSubmit={handleSubmit}>
+            
+            {/* Resume Upload Toggle */}
+            {showUploader && (
+              <div className="form-group fade-in">
+                <div className="label-editorial">
+                  <FileText size={14} /> RESUME SOURCE
                 </div>
-                <span className="slider-value">{formData.questionCount}</span>
-             </div>
-             <input 
-               type="range" 
-               name="questionCount" 
-               min="3" max="10" step="1"
-               value={formData.questionCount}
-               onChange={handleChange}
-               className="minimal-slider"
-             />
-          </div>
+                <div className="upload-minimal">
+                  <FileUpload onFileSelect={handleResumeUpload} label="UPLOAD PDF" />
+                </div>
+              </div>
+            )}
 
-          <div className="form-footer">
-            <Button type="submit" variant="primary" isLoading={loading} className="w-full btn-xl">
-              Initialize Session
+            {/* Target Role */}
+            <div className="form-group">
+              <div className="label-editorial">
+                <Briefcase size={14} /> TARGET ROLE
+              </div>
+              <InputField
+                name="role"
+                placeholder="E.G. SENIOR PRODUCT MANAGER"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* Settings Grid */}
+            <div className="settings-grid">
+              
+              {/* Experience */}
+              <div className="form-group">
+                <label className="label-editorial">EXPERIENCE</label>
+                <div className="radio-group">
+                  {['0-2 YEARS', '3-5 YEARS', '5+ YEARS'].map(exp => (
+                    <button
+                      key={exp}
+                      type="button"
+                      className={`radio-btn ${formData.experience === exp.toLowerCase() ? 'selected' : ''}`}
+                      onClick={() => handleOptionSelect('experience', exp.toLowerCase())}
+                    >
+                      {exp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Type */}
+              <div className="form-group">
+                <label className="label-editorial">FOCUS</label>
+                <div className="radio-group">
+                  {['TECHNICAL', 'BEHAVIORAL', 'MIXED'].map(type => (
+                    <button
+                      key={type}
+                      type="button"
+                      className={`radio-btn ${formData.type === type ? 'selected' : ''}`}
+                      onClick={() => handleOptionSelect('type', type)}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Intensity Slider */}
+            <div className="form-group mt-4">
+               <div className="slider-header">
+                  <div className="label-editorial"><Sliders size={14}/> INTENSITY</div>
+                  <span className="slider-val">{formData.questionCount} QUESTIONS</span>
+               </div>
+               <input 
+                 type="range" 
+                 name="questionCount" 
+                 min="3" max="10" step="1"
+                 value={formData.questionCount}
+                 onChange={handleChange}
+                 className="slider-editorial"
+               />
+            </div>
+
+            <Button type="submit" variant="primary" isLoading={loading} className="w-full btn-editorial primary mt-8">
+              INITIATE SESSION <ArrowRight size={16} />
             </Button>
-          </div>
 
-        </form>
-      </Card>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 };

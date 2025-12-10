@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { Briefcase, Clock, Code, Zap } from 'lucide-react';
+import { Sliders, Briefcase, ChevronRight } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
-import '../App.css'; // Global styles
-import './Interview.css'; // Specific styles for this page (see below)
+import '../styles/theme.css';
+import './Interview.css';
 
 const Interview = () => {
   const navigate = useNavigate();
@@ -14,146 +14,102 @@ const Interview = () => {
   const [formData, setFormData] = useState({
     role: '',
     experience: '0-2 years',
-    type: 'Technical', // Technical, Behavioral, System Design
-    techStack: ''
+    type: 'Technical',
+    questionCount: 5
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleOptionSelect = (name, value) => {
-    setFormData({ ...formData, [name]: value });
+  const handleSelect = (key, val) => {
+    setFormData({ ...formData, [key]: val });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.role) return alert("Please enter a Job Role");
-
+    if (!formData.role) return;
     setLoading(true);
     try {
-      // 1. Call Backend to initialize session
       const data = await api.startInterview(
-        formData.role, 
-        formData.experience, 
-        formData.type
+        formData.role, formData.experience, formData.type, formData.questionCount, null
       );
-      
-      // 2. Redirect to Live Room with Session ID
-      // Expecting response: { session_id: "...", first_question: "..." }
-      if (data && data.session_id) {
-        navigate(`/interview/session?session_id=${data.session_id}`);
-      } else {
-        throw new Error("Invalid session data");
-      }
-    } catch (error) {
-      console.error("Setup failed:", error);
-      alert("Failed to start interview. Check backend connection.");
-    } finally {
-      setLoading(false);
-    }
+      if (data?.session_id) navigate(`/interview/session?session_id=${data.session_id}`);
+    } catch { alert("Error"); } 
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="page-container interview-setup-container">
-      
-      {/* Left Column: Visual/Info */}
-      <div className="setup-info animate-slide-in-left">
-        <h1 className="hero-title">
-          Design Your <br />
-          <span className="text-gradient">Perfect Interview</span>
-        </h1>
-        <p className="hero-subtitle">
-          Configure the AI persona to match your target job description. 
-          Our system adapts to your experience level and technical requirements.
-        </p>
-        
-        <div className="feature-list">
-          <div className="feature-item">
-            <div className="feature-icon"><Zap size={20} /></div>
-            <span>Real-time speech analysis</span>
-          </div>
-          <div className="feature-item">
-            <div className="feature-icon"><Code size={20} /></div>
-            <span>Technical & Behavioral tracks</span>
-          </div>
+    <div className="interview-root page-container">
+      <div className="interview-split">
+        <div className="interview-meta">
+          <h1 className="meta-title">SESSION <br/> CONFIG</h1>
+          <p className="meta-desc">Define the parameters for your AI simulation. Choose specificity and intensity.</p>
+        </div>
+
+        <div className="interview-form-wrapper">
+          <Card className="card-editorial">
+            <form onSubmit={handleSubmit}>
+              <div className="group-editorial">
+                <InputField 
+                  label="TARGET ROLE"
+                  name="role"
+                  placeholder="E.G. SYSTEM ARCHITECT"
+                  value={formData.role}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="group-editorial">
+                <label className="label-editorial">EXPERIENCE LEVEL</label>
+                <div className="chips-row">
+                  {['0-2 YEARS', '3-5 YEARS', '5+ YEARS'].map(exp => (
+                    <button
+                      key={exp} type="button"
+                      className={`chip-btn ${formData.experience === exp.toLowerCase() ? 'active' : ''}`}
+                      onClick={() => handleSelect('experience', exp.toLowerCase())}
+                    >
+                      {exp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="group-editorial">
+                <label className="label-editorial">SESSION TYPE</label>
+                <div className="chips-row">
+                  {['TECHNICAL', 'BEHAVIORAL', 'SYSTEM DESIGN'].map(type => (
+                    <button
+                      key={type} type="button"
+                      className={`chip-btn ${formData.type === type ? 'active' : ''}`}
+                      onClick={() => handleSelect('type', type)}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="group-editorial">
+                <div className="flex-between">
+                  <label className="label-editorial">INTENSITY</label>
+                  <span className="text-mono">{formData.questionCount} QUESTIONS</span>
+                </div>
+                <input 
+                  type="range" min="3" max="10" 
+                  value={formData.questionCount}
+                  onChange={(e) => handleSelect('questionCount', e.target.value)}
+                  className="slider-editorial"
+                />
+              </div>
+
+              <Button type="submit" variant="primary" isLoading={loading} className="btn-editorial primary w-full mt-6">
+                INITIALIZE <ChevronRight size={16} />
+              </Button>
+            </form>
+          </Card>
         </div>
       </div>
-
-      {/* Right Column: Configuration Form */}
-      <Card className="setup-card animate-slide-in-right">
-        <form onSubmit={handleSubmit}>
-          <h2 className="form-title">Session Configuration</h2>
-
-          {/* Job Role Input */}
-          <div className="form-group">
-            <InputField
-              label="Target Job Role"
-              name="role"
-              placeholder="e.g. Senior React Developer"
-              value={formData.role}
-              onChange={handleChange}
-              icon={<Briefcase size={18} />}
-              required
-            />
-          </div>
-
-          {/* Tech Stack (Optional) */}
-          <div className="form-group">
-            <InputField
-              label="Tech Stack / Keywords"
-              name="techStack"
-              placeholder="e.g. AWS, Node.js, TypeScript"
-              value={formData.techStack}
-              onChange={handleChange}
-              icon={<Code size={18} />}
-            />
-          </div>
-
-          {/* Experience Level Selector */}
-          <div className="form-group">
-            <label className="form-label">Experience Level</label>
-            <div className="options-grid">
-              {['0-2 years', '3-5 years', '5+ years'].map((exp) => (
-                <div 
-                  key={exp}
-                  className={`option-chip ${formData.experience === exp ? 'active' : ''}`}
-                  onClick={() => handleOptionSelect('experience', exp)}
-                >
-                  {exp}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Interview Type Selector */}
-          <div className="form-group">
-            <label className="form-label">Interview Focus</label>
-            <div className="options-grid">
-              {['Technical', 'Behavioral', 'Mixed'].map((type) => (
-                <div 
-                  key={type}
-                  className={`option-chip ${formData.type === type ? 'active' : ''}`}
-                  onClick={() => handleOptionSelect('type', type)}
-                >
-                  {type}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="form-actions">
-            <Button 
-              type="submit" 
-              variant="primary" 
-              isLoading={loading} 
-              className="w-full"
-            >
-              Initialize AI Session 🚀
-            </Button>
-          </div>
-        </form>
-      </Card>
     </div>
   );
 };

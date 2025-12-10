@@ -31,7 +31,7 @@ const Navbar = () => {
           <div className="logo-icon">
             <Zap size={24} fill="currentColor" />
           </div>
-          <span className="logo-text">AI.Mock</span>
+          <span className="logo-text">Prep AI</span>
         </Link>
 
         {/* Desktop Links */}

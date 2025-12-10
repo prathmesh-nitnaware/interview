@@ -1,155 +1,161 @@
-/* Container */
-.resume-upload-container {
+/* =========================================
+   RESUME UPLOAD.CSS
+   Editorial Design
+   ========================================= */
+
+.resume-root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 85vh;
-  gap: 3rem;
+  /* Changed from 'center' to remove huge top gap */
+  justify-content: flex-start; 
+  /* Changed from 80vh to prevent forced stretching */
+  min-height: auto; 
+  padding-bottom: 4rem;
 }
 
-/* Hero Section */
-.upload-hero {
+/* Header */
+.resume-header {
   text-align: center;
+  margin-bottom: 4rem;
   max-width: 600px;
+  /* Optional: Adjust this value if you need more/less space */
+  margin-top: 2rem; 
 }
 
-.upload-hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.resume-title {
+  font-size: 3.5rem;
   font-weight: 800;
+  letter-spacing: -2px;
+  margin-bottom: 1rem;
+  color: white;
+  line-height: 1.1;
 }
 
-.upload-hero p {
+.resume-subtitle {
+  color: #888;
   font-size: 1.1rem;
   line-height: 1.6;
 }
 
-.icon-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(124, 77, 240, 0.1);
-  color: var(--primary);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(124, 77, 240, 0.2);
-}
-
-/* Card Styling */
-.upload-main-card {
+/* Content Area */
+.resume-content {
   width: 100%;
   max-width: 500px;
+}
+
+/* Upload Card */
+.upload-card-editorial {
+  background: #0f0f0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3rem;
+  position: relative;
   min-height: 400px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.upload-actions {
-  margin-top: 1rem;
+.upload-section {
+  margin-bottom: 2rem;
 }
 
-.error-text {
-  color: #ff4757;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-/* Privacy Note */
-.privacy-note {
+/* Privacy Badge */
+.privacy-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  margin-top: 1.5rem;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.3);
+  gap: 8px;
+  margin-top: 2rem;
+  font-size: 0.7rem;
+  color: #444;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-/* Scanner Animation UI */
-.scanning-ui {
+.error-text-editorial {
+  color: #ef4444;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Scanning Animation */
+.scanning-state {
+  text-align: center;
+  position: relative;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  position: relative;
-  padding: 3rem 0;
+  color: white;
 }
 
-.doc-icon-large {
-  color: rgba(255, 255, 255, 0.1);
-  position: relative;
-  z-index: 1;
+.scan-icon {
+  margin-bottom: 2rem;
+  color: #666;
 }
 
-.scanner-line {
+.scanning-state h3 {
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.scanning-state p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.scan-line {
   position: absolute;
-  top: 20%;
-  left: 15%;
-  width: 70%;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 2px;
-  background: var(--secondary);
-  box-shadow: 0 0 10px var(--secondary);
-  z-index: 2;
-  animation: scanDoc 2s ease-in-out infinite;
-  opacity: 0.8;
+  background: white;
+  box-shadow: 0 0 20px white;
+  animation: scanDown 2s infinite linear;
 }
 
-/* Steps Grid */
-.steps-grid {
+@keyframes scanDown {
+  0% { top: 20%; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: 80%; opacity: 0; }
+}
+
+/* Steps Row */
+.steps-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  width: 100%;
-  max-width: 800px;
-  margin-top: 1rem;
-  opacity: 0.7;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 2rem;
 }
 
-.step-item {
+.step-col {
   text-align: center;
 }
 
-.step-number {
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.05);
+.step-num {
+  font-family: var(--font-mono);
+  color: #333;
+  font-size: 0.8rem;
   display: block;
-  line-height: 1;
-  margin-bottom: -10px;
-}
-
-.step-item h4 {
-  color: var(--primary);
   margin-bottom: 0.5rem;
-  position: relative;
 }
 
-.step-item p {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  margin: 0;
+.step-col h4 {
+  font-size: 0.9rem;
+  color: white;
+  margin-bottom: 0.3rem;
+  letter-spacing: 1px;
 }
 
-/* Animation Keyframes */
-@keyframes scanDoc {
-  0% { top: 25%; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { top: 60%; opacity: 0; }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .steps-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+.step-col p {
+  font-size: 0.75rem;
+  color: #666;
 }

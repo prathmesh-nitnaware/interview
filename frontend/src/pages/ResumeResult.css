@@ -1,178 +1,191 @@
-/* Container */
-.result-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  min-height: 80vh;
+/* =========================================
+   RESUME RESULT.CSS
+   Editorial / Audit Report Style
+   ========================================= */
+
+.result-root {
+  min-height: 100vh;
 }
 
-/* Score Setup */
-.score-setup-card {
-  max-width: 500px;
-  margin: 4rem auto;
-  text-align: center;
-}
-
-/* Scanner Animation */
-.analysis-loader {
+.result-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 50vh;
-}
-
-.neon-scanner-bar {
-  width: 200px;
-  height: 4px;
-  background: var(--primary);
-  box-shadow: 0 0 20px var(--primary);
-  animation: scan 1.5s ease-in-out infinite alternate;
-  border-radius: 50%;
-}
-
-@keyframes scan {
-  from { width: 50px; opacity: 0.5; }
-  to { width: 250px; opacity: 1; }
-}
-
-/* Results Layout */
-.results-grid {
-  display: grid;
-  gap: 2rem;
-  padding-bottom: 4rem;
-}
-
-.results-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-/* Main Score Card */
-.score-card-main {
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-  padding: 2.5rem !important;
-  flex-wrap: wrap;
-}
-
-.radial-score-large {
-  width: 150px;
-  height: 150px;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.radial-score-large svg {
-  transform: rotate(-90deg);
-  width: 100%;
-  height: 100%;
-}
-
-.circle-bg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
-  stroke-width: 2;
-}
-
-.circle-fill {
-  fill: none;
-  stroke: #2ed573; /* Success Green */
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: 0, 100;
-  animation: fillGraph 1.5s ease-out forwards;
-  filter: drop-shadow(0 0 8px rgba(46, 213, 115, 0.4));
-}
-
-.score-value {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  min-height: 60vh;
   text-align: center;
-  color: white;
 }
 
-.score-value span {
-  display: block;
+/* Header */
+.result-header {
+  margin-bottom: 4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 2rem;
+}
+
+.result-title {
   font-size: 3rem;
   font-weight: 800;
+  letter-spacing: -1px;
+  margin-top: 0.5rem;
+}
+
+/* Setup Form */
+.result-setup {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.setup-form {
+  margin-top: 2rem;
+}
+
+/* Loader */
+.loader-container {
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.loader-bar {
+  width: 100%;
+  max-width: 300px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 auto 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.loader-bar::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; height: 100%; width: 30%;
+  background: white;
+  animation: loadSlide 1.5s infinite ease-in-out;
+}
+
+@keyframes loadSlide {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}
+
+/* Report Grid */
+.report-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .report-grid { grid-template-columns: 1fr; }
+}
+
+/* Score Section */
+.score-section {
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3rem 2rem;
+  background: #0f0f0f;
+}
+
+.score-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.score-huge {
+  font-size: 6rem;
+  font-weight: 300;
   line-height: 1;
+  display: block;
+  letter-spacing: -4px;
 }
 
-.score-verdict h3 {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-  color: white;
+.score-total {
+  font-size: 1rem;
+  color: #666;
+  display: block;
+  margin-top: 0.5rem;
 }
 
-/* Keywords */
-.keywords-grid {
+.score-actions {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Details Grid */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.full-width { grid-column: 1 / -1; }
+
+@media (max-width: 600px) {
+  .details-grid { grid-template-columns: 1fr; }
+}
+
+.section-title {
+  font-size: 0.8rem;
+  color: #666;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+/* Tags */
+.tags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
-.keyword-chip {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
+.tag-editorial {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }
 
-.keyword-chip.missing {
-  background: rgba(255, 71, 87, 0.1);
-  border: 1px solid rgba(255, 71, 87, 0.3);
-  color: #ff4757;
-  box-shadow: 0 0 10px rgba(255, 71, 87, 0.1);
+.tag-editorial.alert {
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
-/* Feedback Split */
-.feedback-split {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-@media (min-width: 768px) {
-  .feedback-split { grid-template-columns: 1fr 1fr; }
-}
-
-.feedback-list {
+/* Lists */
+.list-editorial {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.feedback-list li {
+.list-editorial li {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   margin-bottom: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.9rem;
+  color: #ccc;
 }
 
+.list-editorial.success li svg { color: #10b981; }
+.list-editorial.danger li svg { color: #ef4444; }
+
 /* Suggestions */
-.suggestion-item {
+.suggestion-row {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.suggestion-item:last-child {
-  border-bottom: none;
-}
-
-@keyframes fillGraph {
-  from { stroke-dasharray: 0, 100; }
-}
+.suggestion-row:last-child { border-bottom: none; }
+.suggestion-row svg { color: white; margin-top: 2px; }
+.suggestion-row span { font-size: 0.95rem; color: #ddd; }
