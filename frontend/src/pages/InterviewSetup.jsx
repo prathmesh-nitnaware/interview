@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
-import { Briefcase, FileText, Check, AlertCircle, UploadCloud, Sliders } from 'lucide-react';
+import { Briefcase, FileText, Check, AlertCircle, Sliders } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import InputField from '../components/forms/InputField';
@@ -18,11 +18,9 @@ const InterviewSetup = () => {
     location.state?.raw_text || localStorage.getItem('last_resume_text') || ""
   );
   
-  // UI States
   const [loading, setLoading] = useState(false);
   const [showUploader, setShowUploader] = useState(!resumeText); 
 
-  // Form Data
   const [formData, setFormData] = useState({
     role: '',
     experience: '0-2 years',
@@ -38,11 +36,9 @@ const InterviewSetup = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Direct Resume Upload Handler
   const handleResumeUpload = async (file) => {
     if (!file) return;
     try {
-      // Show mini loading state if needed
       const data = await api.uploadResume(file);
       setResumeText(data.raw_text);
       localStorage.setItem('last_resume_text', data.raw_text);
@@ -80,11 +76,11 @@ const InterviewSetup = () => {
   return (
     <div className="page-container setup-wrapper">
       
-      {/* 1. LEFT SIDE: Context & Info (40% width on Desktop) */}
+      {/* 1. LEFT SIDE: Info (35% width) */}
       <div className="setup-info">
         <h1 className="setup-title">
-          Interview <br />
-          <span className="text-highlight">Configuration</span>
+          Configure <br />
+          <span className="text-highlight">Session</span>
         </h1>
         <p className="setup-desc">
           Customize your AI interviewer. Upload your resume for personalized questions, or start fresh with a specific job role.
@@ -93,9 +89,7 @@ const InterviewSetup = () => {
         {/* Resume Context Card */}
         <div className={`context-card ${resumeText ? 'loaded' : 'empty'}`}>
           <div className="context-header">
-            <div className="icon-badge">
-              {resumeText ? <Check size={16} /> : <AlertCircle size={16} />}
-            </div>
+            {resumeText ? <Check size={18} /> : <AlertCircle size={18} />}
             <span>{resumeText ? "Resume Context Active" : "No Resume Context"}</span>
           </div>
           <p className="context-detail">
@@ -111,7 +105,7 @@ const InterviewSetup = () => {
         </div>
       </div>
 
-      {/* 2. RIGHT SIDE: The Form (60% width on Desktop) */}
+      {/* 2. RIGHT SIDE: The Form (65% width) */}
       <Card className="setup-form-card">
         <form onSubmit={handleSubmit}>
           
@@ -206,4 +200,4 @@ const InterviewSetup = () => {
   );
 };
 
-export default InterviewSetup;  
+export default InterviewSetup;
