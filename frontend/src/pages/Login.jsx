@@ -15,6 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Redirect to where they came from, or dashboard by default
   const from = location.state?.from?.pathname || "/dashboard";
 
   const handleChange = (e) => {
@@ -28,7 +29,10 @@ const Login = () => {
       setError("Please fill in all fields");
       return;
     }
+    
+    // This calls the REAL backend now via AuthContext
     const result = await login(formData.email, formData.password);
+    
     if (result.success) {
       navigate(from, { replace: true });
     } else {
@@ -85,7 +89,8 @@ const Login = () => {
                 <input type="checkbox" /> 
                 <span>Remember me</span>
               </label>
-              <Link to="/forgot-password" class="link-simple">Forgot Password?</Link>
+              {/* FIXED: Changed class to className */}
+              <Link to="/forgot-password" className="link-simple">Forgot Password?</Link>
             </div>
 
             <Button 

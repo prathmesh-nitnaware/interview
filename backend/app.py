@@ -1,54 +1,80 @@
-import os
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
-# Import Blueprints
-# Ensure 'backend/routes/interview.py' and 'backend/routes/resume_score.py' exist
-from routes.resume_score import resume_bp
-from routes.interview import interview_bp
+# 1. Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
-# --- CONFIGURATION ---
-# Allow all origins (Simplest for dev)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# 2. Connect to MongoDB Cloud
+try:
+    mongo_uri = os.getenv('MONGO_URI')
+    client = MongoClient(mongo_uri)
+    # Ping the database to check connection
+    client.admin.command('ping')
+    print("✅ Successfully connected to MongoDB!")
+    
+    db_name = os.getenv('DB_NAME', 'prep_ai_db')
+    db = client[db_name]
+    users_collection = db['users']
 
-# File Upload Config
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
-UPLOAD_FOLDER = './temp_uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+except Exception as e:
+    print("❌ Failed to connect to MongoDB:", e)
 
-# Ensure temp folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+@app.route('/api/signup', methods=['POST'])
+def signup():
+    data = request.json
+    username = data.get('username') # Email
+    password = data.get('password')
 
-# --- REGISTER BLUEPRINTS ---
-app.register_blueprint(resume_bp, url_prefix='/api/resume')
-app.register_blueprint(interview_bp, url_prefix='/api/interview')
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
 
-# --- HEALTH CHECK ---
-@app.route('/', methods=['GET'])
-def health_check():
-    return jsonify({
-        "status": "active",
-        "message": "Prep.AI Backend is running",
-        "routes": ["/api/resume/score", "/api/interview/initiate", "/api/interview/submit"]
-    }), 200
+    # Check if user already exists in MongoDB
+    if users_collection.find_one({"email": username}):
+        return jsonify({"error": "User already exists"}), 409
 
-# --- ERROR HANDLERS ---
-@app.errorhandler(413)
-def request_entity_too_large(error):
-    return jsonify({"error": "File too large (Max 16MB)"}), 413
+    # Insert new user
+    new_user = {
+        "email": username,
+        "password": password, # In a real app, you should Hash this!
+        "role": "candidate",
+        "createdAt": "today" 
+    }
+    users_collection.insert_one(new_user)
+    
+    return jsonify({"message": "User created successfully"}), 201
 
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({"error": "Internal Server Error"}), 500
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
 
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({"error": "Endpoint not found"}), 404
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
 
-# --- MAIN ENTRY POINT ---
+    # Find user in MongoDB
+    user = users_collection.find_one({"email": username})
+
+    if user and user['password'] == password:
+        return jsonify({
+            "message": "Login successful",
+            "user": {
+                "name": username.split('@')[0],
+                "email": username
+            }
+        }), 200
+    else:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+@app.route('/api/test', methods=['GET'])
+def test_connection():
+    return jsonify({"message": "Backend is running with MongoDB!"}), 200
+
 if __name__ == '__main__':
-    # Run on Port 5000
     app.run(debug=True, port=5000)

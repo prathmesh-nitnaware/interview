@@ -1,33 +1,23 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  // 1. Initialize state from localStorage or default to 'dark'
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('app-theme');
-    return savedTheme || 'dark'; // Default to dark for the Neon look
-  });
+  // 1. Hardcode theme to 'dark'
+  const theme = 'dark';
 
-  // 2. Effect to apply the theme class to the body
+  // 2. Enforce the dark-mode class on the body when the app starts
   useEffect(() => {
-    const body = document.body;
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode'); // Safety cleanup
     
-    // Remove old class and add new one
-    body.classList.remove('light-mode', 'dark-mode');
-    body.classList.add(`${theme}-mode`);
-    
-    // Save to local storage
-    localStorage.setItem('app-theme', theme);
-  }, [theme]);
-
-  // 3. Toggle Function
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
-  };
+    // Optional: Persist just in case other logic checks localStorage
+    localStorage.setItem('app-theme', 'dark'); 
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    // We removed 'toggleTheme' since it is no longer needed.
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -42,4 +32,4 @@ export const useTheme = () => {
   return context;
 };
 
-export default ThemeContext;
+export default ThemeContext;  
