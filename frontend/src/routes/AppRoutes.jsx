@@ -1,32 +1,21 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-
-// Layout Wrapper
 import Layout from '../components/layout/Layout';
-
-// Auth Guard
 import ProtectedRoute from '../components/ProtectedRoute';
-
-// --- PAGES (Importing from ../pages based on your screenshot) ---
 import Landing from '../pages/Landing';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
-
-// --- RESUME FLOW ---
 import ResumeUpload from '../pages/ResumeUpload';
-import ResumeResult from '../pages/ResumeResult'; // Keep if you use it
-
-// --- INTERVIEW FLOW ---
+import ResumeResult from '../pages/ResumeResult'; 
 import InterviewSetup from '../pages/InterviewSetup';
-import InterviewSession from '../pages/InterviewSession'; // This is the Camera Page
-import InterviewReport from '../pages/InterviewReport';
-import InterviewLive from '../pages/InterviewLive';
-
-// Note: If you have a separate "CodeAssessment" or "Arena" component, import it here.
-// Assuming 'InterviewLive' might be your coding arena based on your file list.
-// If not, point this to where your Code Editor page is.
+import InterviewSession from '../pages/InterviewSession'; 
+import InterviewLive from '../pages/InterviewLive';       
+import InterviewReport from '../pages/InterviewReport';   
+import CodingSetup from '../pages/CodingSetup';
+import CodingArena from '../pages/CodingArena';           
+import CodingReport from '../pages/CodingReport';         
 
 const AppRoutes = () => {
   return (
@@ -41,27 +30,25 @@ const AppRoutes = () => {
 
         {/* Protected Application Routes */}
         <Route element={<ProtectedRoute />}>
+          
+          {/* Main Dashboard */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           
-          {/* Resume Flow */}
+          {/* 1. Resume Flow */}
           <Route path="/resume/upload" element={<ResumeUpload />} />
           <Route path="/resume/result" element={<ResumeResult />} />
 
-          {/* --- INTERVIEW FLOW --- */}
-          
-          {/* Step 1: Configuration */}
+          {/* 2. Voice Interview Flow */}
           <Route path="/interview/setup" element={<InterviewSetup />} />
-          
-          {/* Step 2: Permissions (Camera/Mic Check) - CRITICAL FIX */}
           <Route path="/interview/room" element={<InterviewSession />} />
-          
-          {/* Step 3: Live Interview / Coding Arena */}
-          {/* Ensure InterviewLive.jsx is your actual coding page */}
-          <Route path="/coding/arena" element={<InterviewLive />} />
-          
-          {/* Post-Interview Reports */}
+          <Route path="/interview/live" element={<InterviewLive />} />
           <Route path="/interview/report" element={<InterviewReport />} />
+          
+          {/* 3. Coding Round Flow */}
+          <Route path="/coding/setup" element={<CodingSetup />} />
+          <Route path="/coding/arena" element={<CodingArena />} />
+          <Route path="/coding/report" element={<CodingReport />} />
           
         </Route>
 

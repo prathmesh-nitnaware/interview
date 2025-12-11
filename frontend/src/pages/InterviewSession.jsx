@@ -57,7 +57,7 @@ const InterviewSession = () => {
   }, [navigate, questionData]);
 
   const startActualInterview = () => {
-    navigate('/coding/arena', { 
+    navigate('/interview/live', { 
       state: { 
         question: questionData,
         config: sessionConfig 
