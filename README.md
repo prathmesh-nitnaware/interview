@@ -1,186 +1,131 @@
-# AI POWERED MOCK INTERVIEW PLATFORM
+# 🚀 Prep AI - The Future of Interview Preparation
 
-The future of interviews, where AI is your interviewer, mentor, and code reviewer — all in one.
+**Master your career with Prep AI.** A comprehensive platform offering real-time voice analysis, ATS resume scoring, and algorithmic challenges designed for professionals who demand perfection.
 
-This repository contains the complete backend (FastAPI) and a lightweight frontend (Streamlit) for a next-generation AI interview system.
-The backend does all the heavy lifting — AI logic, ML models, NLP scoring — so any frontend (Streamlit, React, Flutter, etc.) can connect easily.
+---
 
-🚀 1. **Features Added (Current)**
-🎯 Personalized Interview Generation
+## 🌟 Features
 
-Endpoint: POST /start_interview
+* **🔐 Secure Authentication:** Full Login/Signup flow with MongoDB persistence and session management.
+* **🎨 Editorial Design:** Stunning "Neon/Dark Mode" UI with noise textures, typewriter effects, and smooth animations.
+* **🎤 Voice Analysis:** (Coming Soon) AI-driven feedback on tone, pacing, and confidence.
+* **📄 ATS Scorer:** (Coming Soon) Resume parsing to check compatibility with job descriptions.
+* **💻 Coding Dojo:** (Coming Soon) Distraction-free environment for DSA practice.
+* **📱 Responsive:** Fully optimized for desktop and mobile devices.
 
-Parses resume.pdf to extract skills.
+---
 
-Generates full interview questions based on:
+## 🛠️ Tech Stack
 
-User’s extracted skills
+### **Frontend**
+* **React (Vite):** Fast, modern UI development.
+* **React Router:** Seamless client-side navigation.
+* **Lucide React:** Beautiful, consistent iconography.
+* **CSS3:** Custom "Editorial" theme with CSS variables for dark mode.
 
-Difficulty level (Easy, Medium, Hard)
+### **Backend**
+* **Python (Flask):** Lightweight and robust API server.
+* **PyMongo:** Native MongoDB driver for Python.
+* **Flask-CORS:** Handling Cross-Origin Resource Sharing.
+* **Gunicorn:** Production-grade WSGI server for deployment.
 
-Number of questions
+### **Database**
+* **MongoDB Atlas:** Cloud-hosted NoSQL database for user data and analytics.
 
-🔊 AI-Spoken Questions (TTS)
+---
 
-Uses gTTS to convert all AI-generated questions into audio (base64).
+## 📂 Project Structure
 
-Frontend simply plays the audio — no extra logic needed.
+```bash
+/
+├── frontend/           # React Source Code
+│   ├── src/
+│   │   ├── components/ # Reusable UI components (Navbar, Cards)
+│   │   ├── context/    # AuthContext & ThemeContext
+│   │   ├── pages/      # Landing, Login, Signup, Dashboard
+│   │   └── styles/     # Global themes and CSS
+│   ├── public/         # Static assets & _redirects
+│   └── index.html
+│
+├── backend/            # Flask API
+│   ├── app.py          # Main application entry point
+│   ├── requirements.txt # Python dependencies
+│   └── .env            # Environment variables (gitignored)
+│
+└── README.md
 
-👀 Live CV & Body Language Analysis
-
-Endpoint: POST /analyze_frame
-
-Analyzes webcam frames using MediaPipe for:
-
-Posture Scoring (Slouching vs Upright)
-
-Eye Contact Tracking (3D Head Pose)
-
-Blink Detection (Nervousness Indicators)
-
-🧠 Complete Interview Submission & Analysis
-
-Endpoint: POST /submit_full_interview
-
-Performs multi-stage evaluation:
-
-Speech-to-Text (Whisper) for transcription
-
-Vocal Tone Analysis (Librosa) for Confidence, Fluency, Jitter
-
-Content Scoring (Ollama) for technical correctness
-
-Heuristic Nervousness Model combining:
-
-Audio Jitter (60% weight)
-
-Blink Rate (40% weight)
-
-📊 Final Report Generation
-
-Combines all analysis metrics:
-
-Content
-
-Communication
-
-Posture
-
-Confidence
-
-Returns a complete JSON report with weighted scoring.
-
-💻 AI Code Review Module
-
-Endpoint: POST /generate_coding_problem
-Generates a LeetCode-style question using Ollama.
-
-Endpoint: POST /evaluate_code
-Produces a FAANG-level code review covering Correctness, Big O, and Suggestions.
-
-🧩 2. Prerequisites (System-Level)
-
-Before running the project, make sure these are installed:
-
-Python 3.10 (required for mediapipe compatibility)
-
-Ollama (core LLM engine)
-
-Mistral model (run ollama pull mistral)
-
-FFmpeg (required for whisper and audio features)
-
-FFmpeg Installation
-
-Windows:
 ```
-winget install Gyan.FFmpeg
-```
-or
-```
-choco install ffmpeg
-```
+### Future Scope 
 
-macOS:
-```
-brew install ffmpeg
-```
+1. Cheat Detection 
 
-Linux:
+2. Real Time Ai Interruption 
+
+3. Conpany Based Simulation 
+
+## ⚡ Getting Started Locally
+
+Follow these steps to run the project on your machine.
+
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/YOUR_GITHUB_USERNAME/interview.git](https://github.com/YOUR_GITHUB_USERNAME/interview.git)
+cd interview
 ```
-sudo apt install ffmpeg
-```
+### 2. Backend Setup 
+```bash
+cd backend
 
-🧬 3. Clone the Repository
-```
-git clone https://github.com/prathmesh-nitnaware/techfest-ai-interview.git
-cd techfest-ai-interview
-```
-
-⚡ 4. How to Run the Project
-
-This system runs in three separate terminals — one for each part.
-
-🧠 Terminal 1: Start the AI Model (Ollama)
-```
-ollama serve
-```
-
-If Ollama is already running, you can skip this step.
-
-🧩 Terminal 2: Run the Backend (FastAPI)
-```
-# Go to the project directory
-cd /path/to/TECHFEST
-
-# Create a Python 3.10 virtual environment
-py -3.10 -m venv .venv
-
-# Activate the environment
-# Windows
-.\.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
+# Create a virtual environment (Recommended)
+python -m venv venv
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
 
 # Install dependencies
-pip install --upgrade pip
-pip install fastapi "uvicorn[standard]" python-multipart openai-whisper mediapipe opencv-python librosa soundfile requests numpy spacy PyPDF2 gTTS streamlit streamlit-webrtc streamlit-mic-recorder
+pip install -r requirements.txt
 
-# Download spaCy model
-python -m spacy download en_core_web_sm
+# Create .env file
+echo "MONGO_URI=your_mongodb_connection_string" > .env
+echo "DB_NAME=prep_ai_db" >> .env
 
-# Run the backend server
-uvicorn backend.app:app --reload
+# Run the server
+python app.py
 ```
+You should see: 🚀 Server running on http://localhost:5000
 
-The backend runs on http://127.0.0.1:8000
+### 3. Frontend Setup 
 
-🖥 Terminal 3: Run the Frontend (Streamlit)
+Open a new terminal in the project root.
+
+```bash
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev
 ```
-# Go to the project directory
-cd /path/to/TECHFEST
+Open http://localhost:5173 to view the app.
 
-# Activate the same environment
-# Windows
-.\.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
+## 🚀 Deployment
 
-# Run Streamlit app
-streamlit run frontend/app.py
-```
+### **Frontend (Netlify)**
+1. Connect your GitHub repository to Netlify.
+2. **Build Command:** `npm run build`
+3. **Publish Directory:** `dist`
+4. Ensure `public/_redirects` exists to handle routing.
 
-🧾 5. Project Summary
+### **Backend (Render)**
+1. Connect repository to Render as a **Web Service**.
+2. **Build Command:** `pip install -r requirements.txt`
+3. **Start Command:** `gunicorn app:app`
+4. **Environment Variables:** Add `MONGO_URI` and `DB_NAME` in the Render dashboard.
 
-Backend (Brain) - FastAPI handles all AI/ML logic
+---
 
-Frontend (Face) - Streamlit serves as a simple test client
+## 🤝 Contributors
 
-AI Model - Ollama (Mistral) powers the intelligence layer
-
-**Featues to add:**
-1. Proper Frontend 
-2. Technical interview part 
-3. Have to connect db to store some video clips
-4. Have to debug some bugs
-5. More enhancement 
+* **Mubina Syed** - Database + Authentication
+* **Prathmesh Nitnaware** - Backend + ML
+* **Diksha Parulekar** - Frontend + Backend
+* * **Mayank Ekbote** - ML Training
+* **Team Prep AI**
