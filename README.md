@@ -127,5 +127,6 @@ Open http://localhost:5173 to view the app.
 * **Mubina Syed** - Database + Authentication
 * **Prathmesh Nitnaware** - Backend + ML
 * **Diksha Parulekar** - Frontend + Backend
-* * **Mayank Ekbote** - ML Training
+* **Mayank Ekbote** - ML Training
 * **Team Prep AI**
+
