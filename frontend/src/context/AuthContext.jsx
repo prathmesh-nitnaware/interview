@@ -7,10 +7,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  // 🚀 PRODUCTION URL (Connects to your live Render Backend)
-  // We use this instead of localhost so Vercel can find the server.
-  const API_URL = "https://prep-ai-backend-z5rk.onrender.com"; 
+  
+  const API_URL = "http://localhost:5000"; 
 
   // 1. Check for existing session on startup
   useEffect(() => {
@@ -21,12 +19,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // 2. REAL Login Function
+  // 2. Login Function
   const login = async (email, password) => {
     setLoading(true);
 
     try {
-      // Fetch from Render Backend
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,7 +36,6 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Login successful
         const user = { 
           id: "usr_" + Date.now(), 
           name: email.split('@')[0], 
@@ -55,12 +51,10 @@ export const AuthProvider = ({ children }) => {
         navigate('/dashboard');
         return { success: true };
       } else {
-        // Login failed - Server returned an error
         setLoading(false);
         return { success: false, message: data.error || "Login failed" };
       }
     } catch (error) {
-      // Network error (Backend might be sleeping)
       setLoading(false);
       console.error("Login network error:", error);
       return { 
@@ -70,12 +64,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 3. REAL Signup Function
+  // 3. Signup Function
   const signup = async (name, email, password) => {
     setLoading(true);
 
     try {
-      // Fetch from Render Backend
       const response = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,7 +81,6 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Signup successful
         const user = { 
           id: "usr_" + Date.now(), 
           name: name, 
@@ -104,7 +96,6 @@ export const AuthProvider = ({ children }) => {
         navigate('/dashboard');
         return { success: true };
       } else {
-        // Signup failed
         setLoading(false);
         return { success: false, message: data.error || "Signup failed" };
       }
@@ -138,15 +129,13 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
-      
-      {/* Loading Overlay */}
       {loading && (
         <div style={{
           position: 'fixed', inset: 0, background: '#0a0a0a', 
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
         }}>
           <div style={{color: 'white', fontFamily: 'sans-serif'}}>
-             Connecting to Server...
+             Connecting to Prep AI...
           </div>
         </div>
       )}
@@ -154,7 +143,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom Hook for easy access
+// Custom Hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
